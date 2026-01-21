@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "T", "B", "Q"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+asyncio_mode = "auto"
+python_files = "tests/*.py"
