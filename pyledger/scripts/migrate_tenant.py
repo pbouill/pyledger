@@ -4,12 +4,15 @@
 import argparse
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description="Run migrations for a tenant (placeholder)")
-    p.add_argument('name', help='Tenant name')
+    p.add_argument("name", help="Tenant name")
     args = p.parse_args()
-    print(f"STUB: migrate tenant {args.name}")
+    import logging
+
+    logger = logging.getLogger(__name__)
+    logger.info("STUB: migrate tenant %s", args.name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

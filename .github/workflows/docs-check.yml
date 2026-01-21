@@ -1,0 +1,33 @@
+name: Docs verification
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fail if code changes but canonical docs not updated
+        run: |
+          set -euo pipefail
+          BASE=${{ github.event.pull_request.base.ref }}
+          echo "Base branch: $BASE"
+          git fetch origin $BASE --depth=1
+          CHANGED=$(git diff --name-only origin/$BASE...HEAD || true)
+          echo "Changed files:\n$CHANGED"
+
+          # Patterns indicating code changes that likely require docs updates
+          if echo "$CHANGED" | grep -qE '^(src/|backend/|frontend/|app/|package.json|pyproject.toml|alembic/|requirements.txt)'; then
+            if echo "$CHANGED" | grep -qE '(^docs/Architecture.md$|^docs/Style.md$|^\.github/copilot-instructions.md$|^README.md$)'; then
+              echo "Docs updated."
+            else
+              echo "::error::Code or infra changes detected but canonical docs not updated. Please update 'docs/Architecture.md', 'docs/Style.md', or '.github/copilot-instructions.md' as appropriate.";
+              exit 1
+            fi
+          else
+            echo "No canonical docs required for this change."
+          fi

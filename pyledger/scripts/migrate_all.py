@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """Stub: iterate configured tenants and run migrations (placeholder)."""
 
-def main():
+def main() -> None:
     # TODO: load tenant list from config or common DB
-    tenants = ['example_tenant']
+    tenants = ["example_tenant"]
+    import logging
+
+    logger = logging.getLogger(__name__)
     for t in tenants:
-        print(f"STUB: migrate tenant {t}")
+        logger.info("STUB: migrate tenant %s", t)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import logging
+
+    logging.basicConfig(level=logging.INFO)
     main()

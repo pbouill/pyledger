@@ -2,17 +2,22 @@
 
 We create a minimal healthcheck router as a starting point.
 """
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db import get_session
-from ..tenancy import get_tenant
 
 router = APIRouter()
 
 
 @router.get("/health")
-async def health(session: AsyncSession = Depends(get_session)):
+async def health(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, str]:
     # Basic DB connectivity check; can be extended
-    await session.execute("SELECT 1")
+    from sqlalchemy import text
+
+    await session.execute(text("SELECT 1"))
     return {"status": "ok"}

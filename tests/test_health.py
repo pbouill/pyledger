@@ -1,20 +1,22 @@
+from typing import AsyncGenerator
+
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from pyledger.app import create_app
 from pyledger.db import get_session
 
 
-async def fake_session():
+async def fake_session() -> AsyncGenerator[object, None]:
     class Dummy:
-        async def execute(self, *args, **kwargs):
+        async def execute(self, *args: object, **kwargs: object) -> None:
             return None
 
     yield Dummy()
 
 
 @pytest.mark.asyncio
-async def test_health():
+async def test_health() -> None:
     app = create_app()
     app.dependency_overrides[get_session] = fake_session
 

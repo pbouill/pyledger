@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
-"""Stub: bootstrap tenant DB (create DB/user, run migrations, seed defaults, register company).
+"""Bootstrap tenant DB (placeholder).
 
-Placeholder only — implement provisioning and migrations later per docs/TODO.md.
+Creates database and runs migrations; implemented later per `docs/TODO.md`.
 """
 
 import argparse
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description="Bootstrap a tenant (placeholder)")
-    p.add_argument('name', help='Tenant name')
+    p.add_argument("name", help="Tenant name")
     args = p.parse_args()
-    print(f"STUB: bootstrap tenant {args.name}")
+    logger.info("STUB: bootstrap tenant %s", args.name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

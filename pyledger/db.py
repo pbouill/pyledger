@@ -6,10 +6,14 @@ This is intentionally minimal for single-tenant usage, and includes small abstra
 """
 from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from .config import get_database_url
-
 
 _engine: AsyncEngine | None = None
 _sessionmaker: async_sessionmaker[AsyncSession] | None = None
@@ -31,5 +35,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
     if _sessionmaker is None:
         # Ensure engine/sessionmaker initialized
         get_engine()
+    # mypy: convince the type checker that _sessionmaker is initialized
+    assert _sessionmaker is not None
     async with _sessionmaker() as session:
         yield session

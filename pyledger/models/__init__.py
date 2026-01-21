@@ -2,10 +2,13 @@
 
 Keep models minimal to start; add more domain models as needed.
 """
-from sqlalchemy import Column, Integer, String, DateTime, func
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.sql import func
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Company(Base):
