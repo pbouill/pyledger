@@ -9,12 +9,13 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "${APP_EXT_PORT}:8000"
     environment:
-      - PYTHONUNBUFFERED=1
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_NAME=${DB_NAME}
+      PYTHONUNBUFFERED: 1
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_NAME: ${DB_NAME}
+      DB_PASSWORD_FILE: /run/secrets/db_password
     depends_on:
       - db
     secrets:
@@ -25,15 +26,16 @@ services:
     image: postgres:18.1
     restart: always
     environment:
-      POSTGRES_DB: ${DB_NAME:pyledger}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
     secrets:
       - db_password
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
 
 secrets:
   db_password:
-    environment: PYLEDGER_DB_PASSWORD
+    environment: DB_PASSWORD
 volumes:
   db_data:

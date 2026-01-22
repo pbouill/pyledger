@@ -1,3 +1,18 @@
+### Python Linting & Formatting Conventions
+
+- All module-level imports **must** appear at the top of the file, before any code, docstrings, or function/class definitions (Ruff E402).
+- All lines **must** be ≤88 characters unless an exception is explicitly justified (Ruff E501).
+- Always use `raise ... from err` or `raise ... from None` in exception handlers to clarify error origins (Ruff B904).
+- Remove unused imports and variables (Ruff F401, F841).
+- Organize and sort imports using standard tools (Ruff I001, isort).
+- Use double quotes for all string literals (Ruff Q000).
+- Do not use `print` statements in production code (Ruff T201).
+- Abstract base classes must have at least one `@abstractmethod` (Ruff B024).
+- All code and tests must pass `ruff check .` and `mypy .` with zero errors or justified ignores.
+
+**Copilot must:**
+- Proactively fix or flag these issues in all new and modified code.
+- Remind contributors to follow these conventions in PRs and code reviews.
 # Copilot Instructions (Canonical)
 
 **Purpose**: This file is the canonical source of truth for how the Copilot assistant should behave and interact with contributors in this repository. Keep this file up to date; avoid duplicating guidance in other files.
