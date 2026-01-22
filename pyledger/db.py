@@ -24,7 +24,10 @@ def get_engine() -> AsyncEngine:
     if _engine is None:
         DATABASE_URL = get_database_url()
         # Use asyncpg driver
-        _engine = create_async_engine(DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"))
+        async_database_url = DATABASE_URL.replace(
+            "postgresql://", "postgresql+asyncpg://"
+        )
+        _engine = create_async_engine(async_database_url)
         _sessionmaker = async_sessionmaker(_engine, expire_on_commit=False)
     return _engine
 

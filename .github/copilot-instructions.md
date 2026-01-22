@@ -54,6 +54,15 @@
 - If fixes are applied automatically, any changes that relax or ignore checks must include inline justification comments (e.g., `# type: ignore[code]  # reason: <explanation>` for mypy) and an explanation in `pyproject.toml` or a linked issue/PR.
 - Additions to linter ignores should be accompanied by a short note in `pyproject.toml` describing why the ignore is necessary and how/when it can be removed.
 
+**Virtual environment usage**
+- **Always** use the project's virtual environment when installing packages, running tests, linters, or any commands that require Python packages. When a `.venv/` directory exists at the repository root, Copilot MUST either:
+  - activate it: `source .venv/bin/activate` (or the platform equivalent), or
+  - run commands via the venv Python: `.venv/bin/python -m pip install ...`, `.venv/bin/python -m pytest`, etc.
+- When the assistant needs to install packages or modify the environment it must:
+  1. Check for the presence of a `.venv/` at the repo root and report the finding.
+  2. Present the exact shell commands it intends to run and ask the repository maintainer to confirm them in text before execution.
+  3. Never install packages into the system Python or global site-packages without explicit approval.
+- This rule applies to automated fixes, test runs, and any ad-hoc package install or environment change initiated by Copilot or via the scripts it runs.
 ## Instruction updates & proactive prompts
 - When Copilot discovers missing, ambiguous, or useful guidance that should be added to this file (or related canonical docs), it should proactively prompt the user with:
   - A short explanation of what should be added and why.

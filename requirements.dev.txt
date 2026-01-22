@@ -15,3 +15,15 @@ pre-commit>=4.5.1
 
 # Local env helpers
 python-dotenv>=1.2.1
+
+# Type stubs for third-party libs (helpful for editors / mypy)
+types-requests>=2.32.4
+types-PyYAML>=6.0.12
+types-urllib3>=1.26.25
+types-setuptools>=80.9.0
+
+
+## SQLAlchemy 2.x is fully typed; stubs are not needed and may cause conflicts.
+
+# ASGI/Starlette related notes — Starlette and ASGI libs ship type information; no separate stubs required
+# (leave this block for future revision if explicit stubs become needed)
