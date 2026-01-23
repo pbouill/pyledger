@@ -12,7 +12,7 @@ ARG PYTHON_VERSION=3.14.2
 ARG PYTHON_TAG_SUFFIX=-slim
 ARG NODE_VERSION=24
 ARG NODE_TAG_SUFFIX=-alpine
-ARG FRONTEND_DIR=frontend
+
 
 #################################################################
 # Frontend build stage
@@ -21,12 +21,12 @@ FROM node:${NODE_VERSION}${NODE_TAG_SUFFIX} AS frontend-build
 WORKDIR /build-frontend
 
 # Copy only package files first for better caching
-COPY ${FRONTEND_DIR}/package*.json ./
+COPY app/package*.json ./
 # If you use yarn, change commands accordingly
 RUN npm ci --silent
 
 # Copy the rest of the frontend sources and build
-COPY ${FRONTEND_DIR}/ ./
+COPY app/ ./
 RUN npm run build
 
 #################################################################
@@ -40,12 +40,13 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends build-essential libpq-dev gcc \
   && rm -rf /var/lib/apt/lists/*
 
+
 # Install Python dependencies and build wheels for reliable transfer to runtime image
 COPY requirements.txt ./
 RUN python -m pip install --upgrade pip
 RUN pip wheel --wheel-dir=/wheels -r requirements.txt
 
-# Copy application source
+# Copy application source (after dependencies for better layer caching)
 COPY . .
 
 # (Optional) run tests / packaging here in CI builds
@@ -79,4 +80,4 @@ HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=5 \
   CMD ["python", "-c", "import sys,urllib.request as r; v=r.urlopen('http://127.0.0.1:8000/health', timeout=5); sys.exit(0 if v.getcode()<400 else 1)"]
 
 # Default command: run uvicorn (override in production with your process manager if desired)
-CMD ["uvicorn", "pyledger.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

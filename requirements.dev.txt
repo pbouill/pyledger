@@ -22,6 +22,9 @@ types-PyYAML>=6.0.12
 types-urllib3>=1.26.25
 types-setuptools>=80.9.0
 
+# PostgreSQL support
+# psycopg2-binary is in requirements.txt (do not duplicate)
+
 
 ## SQLAlchemy 2.x is fully typed; stubs are not needed and may cause conflicts.
 

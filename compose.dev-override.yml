@@ -1,5 +1,4 @@
 services:
   db:
     ports:
-      - "5432:5432"
-# ...other overrides if needed...
+      - "${DB_EXT_PORT}:5432"

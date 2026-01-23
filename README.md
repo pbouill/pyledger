@@ -1,3 +1,6 @@
+## Internationalization and Validation
+
+This project uses [pycountry](https://pypi.org/project/pycountry/) for ISO 3166-1 country codes, ISO 639 language codes, and ISO 4217 currency codes. All country, language, and currency fields in models are validated using pycountry to ensure correctness and up-to-date standards.
 # pyledger
 
 A bookkeeping/accounting application (work in progress).

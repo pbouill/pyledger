@@ -1,21 +1,17 @@
-"""SQLAlchemy model base and placeholder models for PyLedger.
+"""PyLedger models package: exposes Base, Company, User."""
 
-Keep models minimal to start; add more domain models as needed.
-"""
-from sqlalchemy import Column, DateTime, Integer, String
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.sql import func
+from .base import Base
+from .company import Company
+from .currency import Currency
+from .currency_rate import CurrencyRate
+from .user import User
+from .user_permission import UserPermission
 
-
-class Base(DeclarativeBase):
-    pass
-
-
-class Company(Base):
-    __tablename__ = "company"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-
-# Add additional domain models here (Account, Transaction, User, etc.)
+__all__ = [
+    "Base",
+    "Company",
+    "User",
+    "UserPermission",
+    "Currency",
+    "CurrencyRate",
+]
