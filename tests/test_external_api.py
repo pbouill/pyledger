@@ -1,6 +1,6 @@
 import pytest
 
-from canonledger.models.currency_rate import ERAPI
+from canon.models.currency_rate import ERAPI
 
 
 @pytest.mark.asyncio

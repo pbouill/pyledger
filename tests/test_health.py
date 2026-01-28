@@ -3,8 +3,8 @@ from typing import AsyncGenerator
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from canonledger.app import create_app
-from canonledger.db import get_session
+from canon.app import create_app
+from canon.db import get_session
 
 
 async def fake_session() -> AsyncGenerator[object, None]:

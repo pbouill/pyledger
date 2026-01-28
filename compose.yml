@@ -3,7 +3,7 @@
 # - `web` runs the FastAPI backend (uvicorn --reload)
 # - `db` runs a Postgres instance for local testing
 
-name: pyledger
+name: canonledger
 
 services:
   web:

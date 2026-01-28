@@ -7,8 +7,8 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from canonledger.db import get_engine
-from canonledger.models import Base
+from canon.db import get_engine
+from canon.models import Base
 
 
 async def main() -> None:

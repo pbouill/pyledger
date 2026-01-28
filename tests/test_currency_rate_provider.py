@@ -6,7 +6,7 @@ import copy
 import httpx
 import pytest
 
-from canonledger.models.currency_rate import ERAPI, CurrencyRate
+from canon.models.currency_rate import ERAPI, CurrencyRate
 
 
 @pytest.fixture(scope="session")

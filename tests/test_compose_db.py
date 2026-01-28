@@ -3,7 +3,7 @@ import pytest
 from typing import Any
 from sqlalchemy import inspect, text, Inspector
 from sqlalchemy.ext.asyncio import AsyncEngine
-from canonledger.models.base import TableNames
+from canon.models.base import TableNames
 
 @pytest.mark.integration
 async def test_db_tables_exist(engine: AsyncEngine) -> None:

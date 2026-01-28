@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, async_sessionmaker
 from typing import AsyncGenerator, Generator
 
-from canonledger.models.base import Base
-from canonledger.migration import migrate_database
+from canon.models.base import Base
+from canon.migration import migrate_database
 
 @pytest.fixture(scope="session")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None]:

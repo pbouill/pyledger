@@ -3,7 +3,7 @@ Test script to verify that all models can be imported and tables created with SQ
 """
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from canonledger.models import Base
+from canon.models import Base
 
 # Use in-memory SQLite for test
 engine = create_engine("sqlite:///:memory:")
