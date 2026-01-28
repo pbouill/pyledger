@@ -1,12 +1,20 @@
-
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, Integer, String
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
+
 from .base import Base, TableNames
+from .relationships import get_parent_relationship_def, build_single_relationship
+
+if TYPE_CHECKING:
+    from .company import Company
+    from .user_permission import UserPermission
+
+PERMISSIONS_RELATIONSHIP_DEF = TableNames.USER_PERMISSION, get_parent_relationship_def(
+    TableNames.USER, TableNames.USER_PERMISSION
+)
 
 
 class User(Base):
@@ -17,18 +25,10 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[Optional[DateTime]] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-    updated_at: Mapped[Optional[DateTime]] = mapped_column(
-        DateTime(timezone=True), onupdate=func.now()
-    )
     oauth_provider: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     oauth_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    permissions: Mapped[list["UserPermission"]] = build_single_relationship(*PERMISSIONS_RELATIONSHIP_DEF)
 
-    user_permissions = relationship(
-        "UserPermission",
-        back_populates="user",
-        cascade="all, delete-orphan",
-    )
-    companies = association_proxy("user_permissions", "company")
+    @property
+    def companies(self) -> set["Company"]:
+        return {up.company for up in self.permissions}

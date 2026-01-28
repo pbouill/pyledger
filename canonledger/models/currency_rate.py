@@ -1,16 +1,17 @@
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import AsyncGenerator, ClassVar, Optional
+from typing import AsyncGenerator, ClassVar, Optional, Self
 
 import httpx
 import pycountry
 from pydantic import BaseModel, field_validator
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
-from sqlalchemy.sql import func
 
-from .base import Base
+from .base import Base, TableNames
+from .currency import Currency, RATES_RELATIONSHIP_DEF
+# from .relationships import RELATIONSHIPS
 
 logger = logging.getLogger(__name__)
 
@@ -117,32 +118,36 @@ class ERAPI(BaseModel, CurrencyRateProvider):
             yield obj
     
 
-
 class CurrencyRate(Base):
-    __tablename__ = "currency_rate"
+    __tablename__ = TableNames.CURRENCY_RATE
+    __table_args__ = {'extend_existing': True}
+
     RATE_PROVIDER: type[CurrencyRateProvider] = ERAPI
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     currency_code: Mapped[str] = mapped_column(
-        String(8), ForeignKey("currency.code"), nullable=False
+        String(8), ForeignKey(Currency.code), nullable=False
     )
-    currency = relationship("Currency", back_populates="rates")
+    currency: Mapped[Currency] = relationship(
+        Currency,
+        back_populates=RATES_RELATIONSHIP_DEF[1].parent_attr,
+    )
     rate_vs_usd: Mapped[float] = mapped_column(Float, nullable=False)
     timestamp: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
+        DateTime(timezone=True), nullable=False
     )
 
     @classmethod
-    async def update_all(cls, session: Session) -> list["CurrencyRate"]:
+    async def update_all(cls, session: Session) -> list[Self]:
         """
         Update all currency rates in the table using the external API and store
         them in currency_rate.
         """
-        rates: list["CurrencyRate"] = []
-        async for rate in await cls.RATE_PROVIDER.iter_rates():
-            rates.append(rate)
+        rates: list[Self] = []
+        rates_gen = await cls.RATE_PROVIDER.iter_rates()
+        async for rate in rates_gen:
+            rates.append(rate)  # type: ignore[arg-type]
         session.add_all(rates)
         await session.commit()  # type: ignore[func-returns-value]
         logger.info(f"Currency rates updated successfully ({len(rates)} rates).")
         return rates
-

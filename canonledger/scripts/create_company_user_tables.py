@@ -7,8 +7,8 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from pyledger.db import get_engine
-from pyledger.models import Base
+from canonledger.db import get_engine
+from canonledger.models import Base
 
 
 async def main() -> None:

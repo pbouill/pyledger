@@ -2,7 +2,10 @@
 #!/bin/bash
 set -e
 
+
 COMPOSE_FILES="-f compose.yml -f compose.dev-override.yml"
+ENV_FILE=".env.example"
+
 
 
 print_logs() {
@@ -14,6 +17,25 @@ print_logs() {
 	done
 }
 
+print_config() {
+	echo "[pyledger] Docker Compose config:"
+	docker compose $COMPOSE_FILES config
+}
+
+export_env_file_vars() {
+	if [ -f "$ENV_FILE" ]; then
+		echo "[pyledger] Exporting environment variables from $ENV_FILE..."
+		set -a
+		# shellcheck disable=SC1090
+		. "$ENV_FILE"
+		set +a
+	else
+		echo "[pyledger] ENV file $ENV_FILE not found. Skipping export."
+	fi
+}
+
+
+export_env_file_vars
 case "$1" in
 	--rebuild)
 		echo "[pyledger] Rebuilding images..."
@@ -32,5 +54,7 @@ case "$1" in
 		;;
 esac
 
+
+print_config
 docker compose $COMPOSE_FILES up -d
 print_logs

@@ -1,8 +1,27 @@
-import logging
+import pytest
+import asyncio
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, async_sessionmaker
+from typing import AsyncGenerator, Generator
 
-# Set up basic logging configuration for all tests
-logging.basicConfig(
-    level=logging.DEBUG, 
-    format="%(levelname)s %(name)s %(message)s",
-    force=True
-)
+from canonledger.models.base import Base
+from canonledger.migration import migrate_database
+
+@pytest.fixture(scope="session")
+def event_loop() -> Generator[asyncio.AbstractEventLoop, None]:
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+@pytest.fixture(scope="session")
+async def engine() -> AsyncGenerator[AsyncEngine, None]:
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=True, future=True)
+    await migrate_database(engine)
+    yield engine
+    await engine.dispose()
+
+@pytest.fixture(scope="function")
+async def db_session(engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
+    async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+    async with async_session() as session:
+        yield session

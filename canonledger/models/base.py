@@ -1,14 +1,30 @@
 import json
 from enum import StrEnum, auto
-from typing import Any, Generic, Type, TypeVar, get_args
+from typing import Any, Generic, Type, TypeVar, Optional, Self, get_args
 
 from pydantic import BaseModel
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import String, TypeDecorator
+from sqlalchemy.sql import func
 
 
 class Base(DeclarativeBase):
-    pass
+    created_at: Mapped[Optional[DateTime]] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), sort_order=100
+    )
+    updated_at: Mapped[Optional[DateTime]] = mapped_column(
+        DateTime(timezone=True), onupdate=func.now(), sort_order=101
+    )
+
+    @classmethod
+    def get_class_by_table_name(cls, table_name: str) -> Optional[Type[Self]]:
+        for subcls in cls.registry._class_registry.values():
+            if isinstance(subcls, type):
+                if issubclass(subcls, cls):
+                    if subcls.__tablename__ == table_name:
+                        return subcls
+        return None
 
 T = TypeVar("T", bound=BaseModel)
 

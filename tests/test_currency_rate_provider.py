@@ -1,11 +1,12 @@
 import json
 import os
 from typing import Optional, AsyncGenerator
+import copy
 
 import httpx
 import pytest
 
-from pyledger.models.currency_rate import ERAPI, CurrencyRate
+from canonledger.models.currency_rate import ERAPI, CurrencyRate
 
 
 @pytest.fixture(scope="session")
@@ -31,8 +32,6 @@ def erapi_fixture() -> dict:
 @pytest.mark.asyncio
 async def test_erapi_iter_rates_with_fixture(erapi_fixture: dict) -> None:
     # Patch ERAPI.make_request to use the fixture
-    import copy
-
     class MockERAPI(ERAPI):
         @classmethod
         async def make_request(cls, base: str = "USD") -> "ERAPI":
@@ -46,7 +45,7 @@ async def test_erapi_iter_rates_with_fixture(erapi_fixture: dict) -> None:
                 # Adjust rates to simulate different base
                 adjusted_fixture = copy.deepcopy(erapi_fixture)
                 adjusted_fixture["base_code"] = base
-                for code, rate in adjusted_fixture["rates"].items():
+                async for code, rate in adjusted_fixture["rates"].items():
                     # Ensure division and float conversion
                     adjusted_fixture["rates"][code] = float(rate) / float(base_rate)
                 adjusted_fixture["rates"][base] = 1.0

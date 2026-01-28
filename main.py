@@ -6,7 +6,7 @@ and runs `create_app` from the package-level `pyledger.app` (defined below).
 import uvicorn
 
 
-from pyledger.app import create_app
+from canonledger.app import create_app
 
 app = create_app()
 

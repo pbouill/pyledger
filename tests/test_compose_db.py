@@ -1,31 +1,22 @@
-import os
-os.environ["DB_HOST"] = "localhost"
-from dotenv import load_dotenv
-import sqlalchemy as sa
-from sqlalchemy import create_engine, inspect
+
 import pytest
-from pyledger.config import get_database_url
-
-load_dotenv()
-
-DB_URL = get_database_url()
+from typing import Any
+from sqlalchemy import inspect, text, Inspector
+from sqlalchemy.ext.asyncio import AsyncEngine
+from canonledger.models.base import TableNames
 
 @pytest.mark.integration
-def test_db_tables_exist():
-    assert DB_URL, "Database URL could not be constructed from config."
-    engine = create_engine(DB_URL)
-    inspector = inspect(engine)
-    expected_tables = [
-        "company", "user", "currency", "currency_rate"
-    ]
-    actual_tables = inspector.get_table_names()
-    for table in expected_tables:
-        assert table in actual_tables, f"Missing table: {table}"
+async def test_db_tables_exist(engine: AsyncEngine) -> None:
+    async with engine.connect() as conn:
+        def get_tables(sync_conn: Any) -> Any:
+            inspector: Inspector = inspect(sync_conn)
+            return inspector.get_table_names()
+        actual_tables = await conn.run_sync(get_tables)
+        for table in TableNames:
+            assert table in actual_tables, f"Missing table: {table}"
 
 @pytest.mark.compose
-def test_db_insert_and_select():
-    assert DB_URL, "Database URL could not be constructed from config."
-    engine = sa.create_engine(DB_URL)
-    with engine.connect() as conn:
-        result = conn.execute(sa.text("SELECT 1")).scalar()
-        assert result == 1
+async def test_db_insert_and_select(engine: AsyncEngine) -> None:
+    async with engine.connect() as conn:
+        result = await conn.execute(text("SELECT 1"))
+        assert result.scalar() == 1

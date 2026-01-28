@@ -1,9 +1,15 @@
 from typing import Any, Self
 
 from sqlalchemy import ForeignKey, Integer, TypeDecorator
+
+from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TableNames
+from .user import User, PERMISSIONS_RELATIONSHIP_DEF
+
+if TYPE_CHECKING:
+    from .company import Company
 
 
 class Permission(int):
@@ -74,29 +80,32 @@ class PermissionType(TypeDecorator):
             return None
         return Permission(value)
 
+
 class UserPermission(Base):
     __tablename__ = TableNames.USER_PERMISSION
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey(f"{TableNames.USER}.id"),
+        ForeignKey(User.id),
         nullable=False,
     )
-    user = relationship(
-        "User",
-        back_populates="user_permissions",
+    from .user import User
+    user: Mapped[User] = relationship(
+        User,
+        back_populates="permissions",
     )
     company_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(f"{TableNames.COMPANY}.id"),
         nullable=False,
     )
-    company = relationship(
-        "Company",
+    from .company import Company
+    company: Mapped[Company] = relationship(
+        Company,
         back_populates="user_permissions",
     )
     permission: Mapped[Permission] = mapped_column(
         PermissionType,
         nullable=False,
-        default=Permission.from_mask(read=True),
+        default=lambda: Permission.from_mask(read=True),
     )
