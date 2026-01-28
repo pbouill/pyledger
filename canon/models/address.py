@@ -1,14 +1,21 @@
-"""
-Address schema and custom SQLAlchemy type for storing address as JSON using Pydantic.
-"""
+
+
+
+
+
+
+
+
 
 import pycountry
-from pydantic import BaseModel, field_validator
+from pydantic import field_validator
+
+from canon.models.base import PydanticBase
 
 from .base import PydanticTypeDecorator
 
 
-class AddressSchema(BaseModel):
+class AddressSchema(PydanticBase):
     """
     Pydantic schema for postal addresses, with ISO code validation for country,
     language, and currency.

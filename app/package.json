@@ -8,12 +8,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.0"
+    "axios": "^1.13.4",
+    "pinia": "^3.0.4",
+    "sass": "^1.97.3",
+    "vite-plugin-vuetify": "^2.1.3",
+    "vue": "^3.3.0",
+    "vue-router": "^4.6.4",
+    "vuetify": "^3.11.8"
   },
   "devDependencies": {
-    "vite": "^5.0.0",
     "@vitejs/plugin-vue": "^4.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
   },
   "engines": {
     "node": ">=24"

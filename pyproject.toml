@@ -1,6 +1,10 @@
+
 [build-system]
 requires = ["setuptools>=65.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+# Project dependencies are managed in requirements.txt (dynamic).
+# Tools and deployment should read requirements.txt for runtime dependencies.
 
 [tool.black]
 line-length = 88

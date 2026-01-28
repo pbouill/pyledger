@@ -1,9 +1,12 @@
-"""Database helpers: engine and async session dependency.
 
-This is intentionally minimal for single-tenant usage, and includes small abstractions
-(Async engine factory and session dependency) that will make moving to multi-tenant
+
+
+"""
 (engine-per-tenant) easier later.
 """
+
+
+
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
@@ -18,6 +21,8 @@ from .config import get_database_url
 _engine: AsyncEngine | None = None
 _sessionmaker: async_sessionmaker[AsyncSession] | None = None
 
+# For sync DB session (for FastAPI dependencies that expect sync Session)
+
 
 def get_engine() -> AsyncEngine:
     global _engine, _sessionmaker
@@ -30,6 +35,8 @@ def get_engine() -> AsyncEngine:
         _engine = create_async_engine(async_database_url)
         _sessionmaker = async_sessionmaker(_engine, expire_on_commit=False)
     return _engine
+
+
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

@@ -1,11 +1,22 @@
+
+
+
+
+
+
+
+
+
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import EmailStr, Field
+
+from canon.models.base import PydanticBase
 
 from .address import AddressSchema
 
 
-class ContactSchema(BaseModel):
+class ContactSchema(PydanticBase):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[EmailStr] = None

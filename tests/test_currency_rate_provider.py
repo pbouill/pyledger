@@ -1,7 +1,7 @@
+import copy
 import json
 import os
-from typing import Optional, AsyncGenerator
-import copy
+from typing import AsyncGenerator, Optional
 
 import httpx
 import pytest

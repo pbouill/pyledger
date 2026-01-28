@@ -2,17 +2,28 @@
 Custom SQLAlchemy column type for serializing/deserializing CompanySettingsSchema
 (Pydantic) objects to/from JSON.
 """
+
+
+
+
+
+
+
+
+
 from typing import Optional
 
 import pycountry
-from pydantic import BaseModel, field_validator
+from pydantic import field_validator
 from sqlalchemy.orm import Session
+
+from canon.models.base import PydanticBase
 
 from .base import PydanticTypeDecorator
 from .currency import Currency
 
 
-class CompanySettingsSchema(BaseModel):
+class CompanySettingsSchema(PydanticBase):
     """
     Pydantic schema for company settings, with ISO code validation for language
     and currency.

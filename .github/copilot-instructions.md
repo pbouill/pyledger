@@ -1,18 +1,33 @@
-### Python Linting & Formatting Conventions
+### Pydantic Model Inheritance
 
-- All module-level imports **must** appear at the top of the file, before any code, docstrings, or function/class definitions (Ruff E402).
+- All Pydantic models **must** inherit from `PydanticBase` (from `canon.models.base`).
+- Never use class-based `Config` in Pydantic models; always use `model_config = ConfigDict(...)` via inheritance.
+- Do not duplicate config logic in new models—always use the canonical base.
+
+### Python Dependency Management
+
+- Whenever a new runtime package is added, always update `requirements.txt` to include the package with `>=<current version>`.
+- After updating `requirements.txt`, install requirements in the active virtual environment.
+- If stubs or type packages are required, add them to `requirements.dev.txt` using the same `>=<current version>` methodology.
+- Always keep `requirements.txt` and `requirements.dev.txt` in sync with the actual environment.
+
+- All code **must** pass `ruff check .` and `mypy .` with zero errors or justified ignores before any commit or PR. No syntax errors are allowed.
+- All module-level imports **must** appear at the very top of the file, before any code, docstrings, or function/class definitions (Ruff E402).
+- All import blocks **must** be sorted and formatted using isort or ruff (Ruff I001).
 - All lines **must** be ≤88 characters unless an exception is explicitly justified (Ruff E501).
-- Always use `raise ... from err` or `raise ... from None` in exception handlers to clarify error origins (Ruff B904).
-- Remove unused imports and variables (Ruff F401, F841).
-- Organize and sort imports using standard tools (Ruff I001, isort).
+- Do **not** use `print` statements in production or test code (Ruff T201).
+- Remove all unused imports and variables (Ruff F401, F841).
 - Use double quotes for all string literals (Ruff Q000).
-- Do not use `print` statements in production code (Ruff T201).
+- Always use `raise ... from err` or `raise ... from None` in exception handlers to clarify error origins (Ruff B904).
+- Do **not** use `Depends(...)` calls in function signatures; use dependency injection inside the function body (Ruff B008).
 - Abstract base classes must have at least one `@abstractmethod` (Ruff B024).
-- All code and tests must pass `ruff check .` and `mypy .` with zero errors or justified ignores.
+- All except blocks must have an indented code block (use `pass` if needed).
+- No code should be committed with syntax errors, indentation errors, or unresolved imports.
 
 **Copilot must:**
 - Proactively fix or flag these issues in all new and modified code.
 - Remind contributors to follow these conventions in PRs and code reviews.
+- If any of these rules are violated, Copilot must halt and prompt for correction before proceeding.
 # Copilot Instructions (Canonical)
 
 **Purpose**: This file is the canonical source of truth for how the Copilot assistant should behave and interact with contributors in this repository. Keep this file up to date; avoid duplicating guidance in other files.
@@ -78,6 +93,77 @@
   2. Present the exact shell commands it intends to run and ask the repository maintainer to confirm them in text before execution.
   3. Never install packages into the system Python or global site-packages without explicit approval.
 - This rule applies to automated fixes, test runs, and any ad-hoc package install or environment change initiated by Copilot or via the scripts it runs.
+
+
+
+## Lint/Type Error Prevention & Iterative Instruction Improvement
+
+- **Lessons Learned:**
+  - After each ruff/mypy run, contributors and Copilot should record new error patterns, anti-patterns, and things to avoid here. This helps prevent recurrence and accelerates onboarding.
+  - **Template:**
+    - **Error/Pattern:** (e.g., "Using Depends() in function signatures triggers B008")
+    - **How to avoid:** (e.g., "Move dependency injection inside the function body.")
+    - **Example:**
+      - Incorrect: `def foo(db: Session = Depends(get_db)):`
+      - Correct: `def foo(): db = Depends(get_db)`
+  - Review and update this section regularly as the codebase evolves.
+
+- **Triage and fix loop:**
+  - After each ruff/mypy run, address errors in this order for maximum efficiency:
+    1. Syntax/import errors (E402, I001, F401, F821, etc.)
+    2. Type errors (mypy, F821, F841, etc.)
+    3. Style errors (Q000, E501, B904, etc.)
+    4. Unused code (F401, F841)
+    5. Line length (E501)
+
+- **Batch-fix encouragement:**
+  - When possible, batch-fix similar errors across the codebase (e.g., all import order, then all line length) before re-running ruff/mypy.
+
+- **Re-run reminder:**
+  - Always re-run `ruff check .` and `mypy .` after each major patch or batch of fixes, not just before commit.
+
+- **Quick reference: Common error codes**
+
+| Code   | Description                        |
+|--------|------------------------------------|
+| E402   | Import not at top of file          |
+| I001   | Import block unsorted/unformatted  |
+| F401   | Unused import                      |
+| F841   | Unused variable                    |
+| F821   | Undefined name                     |
+| Q000   | Single quotes, use double quotes   |
+| E501   | Line too long                      |
+| B008   | Depends() in function signature    |
+| B904   | Exception must use 'from err'      |
+
+
+- **Pre-commit checklist:**
+  - Run `ruff check .` and `mypy .` before every commit.
+  - Fix all errors or add justified ignores as per policy.
+  - Ensure all import blocks are sorted and at the top of the file.
+  - Do not use `Depends(...)` in function signatures; use dependency injection inside the function body.
+  - All string literals must use double quotes.
+
+- **Examples:**
+  - ❌ Incorrect:
+    ```python
+    def foo(db: Session = Depends(get_db)):
+        ...
+    ```
+  - ✅ Correct:
+    ```python
+    def foo():
+        db = Depends(get_db)
+        ...
+    ```
+
+- **Continuous improvement:**
+  - After each ruff/mypy run, if new error patterns or best practices are discovered, update this file with:
+    - The error code and a short description.
+    - A code example (incorrect/correct).
+    - Any new or revised rules.
+  - All contributors and Copilot must propose updates to this file when new lessons are learned.
+
 ## Instruction updates & proactive prompts
 - When Copilot discovers missing, ambiguous, or useful guidance that should be added to this file (or related canonical docs), it should proactively prompt the user with:
   - A short explanation of what should be added and why.

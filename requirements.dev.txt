@@ -5,7 +5,7 @@ httpx>=0.28.1
 
 # Linting & formatting
 black>=26.1.0
-ruff>=0.14.13
+ruff>=0.14.14
 isort>=7.0.0
 mypy>=1.19.1
 
@@ -20,7 +20,9 @@ python-dotenv>=1.2.1
 types-requests>=2.32.4
 types-PyYAML>=6.0.12
 types-urllib3>=1.26.25
-types-setuptools>=80.9.0
+types-setuptools>=80.10.0
+types-passlib>=1.7.7
+types-python-jose>=3.5.0
 
 # PostgreSQL support
 # psycopg2-binary is in requirements.txt (do not duplicate)

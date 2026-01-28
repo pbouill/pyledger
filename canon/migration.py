@@ -1,9 +1,10 @@
 import logging
 from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from .models import Base
 from .db import get_engine
+from .models import Base
 
 logger = logging.getLogger(__name__)
 

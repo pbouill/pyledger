@@ -1,15 +1,13 @@
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 
 from sqlalchemy import ForeignKey, Integer, TypeDecorator
-
-from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TableNames
-from .user import User, PERMISSIONS_RELATIONSHIP_DEF
+from .user import User
 
 if TYPE_CHECKING:
-    from .company import Company
+    pass
 
 
 class Permission(int):

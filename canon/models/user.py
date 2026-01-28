@@ -1,12 +1,15 @@
-from typing import Optional, TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
 
+
+
+
+from typing import TYPE_CHECKING, Optional
+
+from sqlalchemy import Boolean, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, TableNames
-from .relationships import get_parent_relationship_def, build_single_relationship
+from .relationships import build_single_relationship, get_parent_relationship_def
 
 if TYPE_CHECKING:
     from .company import Company
@@ -27,7 +30,9 @@ class User(Base):
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     oauth_provider: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     oauth_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    permissions: Mapped[list["UserPermission"]] = build_single_relationship(*PERMISSIONS_RELATIONSHIP_DEF)
+    permissions: Mapped[list["UserPermission"]] = build_single_relationship(
+        *PERMISSIONS_RELATIONSHIP_DEF
+    )
 
     @property
     def companies(self) -> set["Company"]:

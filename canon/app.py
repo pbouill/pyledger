@@ -1,7 +1,7 @@
 """Application factory for CanonLedger FastAPI app."""
 import logging
 from contextlib import asynccontextmanager
-from typing import Optional, AsyncGenerator
+from typing import AsyncGenerator, Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,12 +16,12 @@ logger = logging.getLogger(__name__)
 def create_app(engine: Optional[AsyncEngine] = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-        logger.info(f'Starting up application...')
-        engine = await migrate_database(engine)
+        logger.info("Starting up application...")
+        migrated_engine = await migrate_database(engine)
         yield
-        if engine:
-            await engine.dispose()
-        logger.info(f'Shutting down application...')
+        if migrated_engine:
+            await migrated_engine.dispose()
+        logger.info("Shutting down application...")
 
 
     app = FastAPI(title="PyLedger API", lifespan=lifespan)

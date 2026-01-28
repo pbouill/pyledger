@@ -1,12 +1,30 @@
+
+
+
+
+
+
+
+
+
 import json
 from enum import StrEnum, auto
-from typing import Any, Generic, Type, TypeVar, Optional, Self, get_args
+from typing import Any, Generic, Optional, Self, Type, TypeVar, get_args
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy.types import String, TypeDecorator
 from sqlalchemy.sql import func
+from sqlalchemy.types import String, TypeDecorator
+
+
+# Canonical DRY Pydantic base class for all models
+class PydanticBase(BaseModel):
+    model_config = ConfigDict(
+        from_attributes=True,
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+    )
 
 
 class Base(DeclarativeBase):

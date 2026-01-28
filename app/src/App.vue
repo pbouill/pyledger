@@ -1,20 +1,22 @@
 
+
 <template>
-  <div class="app">
-    <img alt="PyLedger Logo" src="/logo.png" class="logo" />
-    <h1>PyLedger</h1>
-    <p>Frontend scaffold (Vue + Vite)</p>
-  </div>
+  <v-app>
+    <v-main>
+      <div class="app">
+        <img alt="PyLedger Logo" src="/logo.png" class="logo" />
+        <h1>PyLedger</h1>
+        <router-view />
+      </div>
+    </v-main>
+  </v-app>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'App',
-}
+<script setup lang="ts">
 </script>
 
 <style>
-body { font-family: system-ui, sans-serif; padding: 2rem; }
+body { font-family: 'Nunito', system-ui, sans-serif; padding: 2rem; }
 .app { max-width: 800px; margin: 0 auto; text-align: center; }
 .logo {
   width: 120px;

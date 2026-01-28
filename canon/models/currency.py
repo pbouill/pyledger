@@ -1,12 +1,13 @@
 
 from datetime import datetime
-from typing import TYPE_CHECKING, ClassVar, Optional
-from sqlalchemy import String, Column
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import TYPE_CHECKING, Optional
+
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import Session as SASession
 
 from .base import Base, TableNames
-from .relationships import get_parent_relationship_def, build_single_relationship
+from .relationships import build_single_relationship, get_parent_relationship_def
 
 if TYPE_CHECKING:
     from .currency_rate import CurrencyRate
@@ -22,7 +23,7 @@ class Currency(Base):
     code: Mapped[str] = mapped_column(String(8), primary_key=True)  # e.g. 'USD', 'EUR'
     name: Mapped[str] = mapped_column(String(64), nullable=False)
     symbol: Mapped[str | None] = mapped_column(String(8), nullable=True)
-    rates: Mapped[list['CurrencyRate']] = build_single_relationship(
+    rates: Mapped[list["CurrencyRate"]] = build_single_relationship(
         *RATES_RELATIONSHIP_DEF
     )
     # rates: Mapped[list[CurrencyRate]] = relationship(

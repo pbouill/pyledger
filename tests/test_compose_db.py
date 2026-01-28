@@ -1,9 +1,12 @@
 
-import pytest
 from typing import Any
-from sqlalchemy import inspect, text, Inspector
+
+import pytest
+from sqlalchemy import Inspector, inspect, text
 from sqlalchemy.ext.asyncio import AsyncEngine
+
 from canon.models.base import TableNames
+
 
 @pytest.mark.integration
 async def test_db_tables_exist(engine: AsyncEngine) -> None:

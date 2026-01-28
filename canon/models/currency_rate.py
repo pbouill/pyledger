@@ -1,3 +1,9 @@
+
+
+
+
+
+
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -5,13 +11,14 @@ from typing import AsyncGenerator, ClassVar, Optional, Self
 
 import httpx
 import pycountry
-from pydantic import BaseModel, field_validator
+from pydantic import field_validator
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
+from canon.models.base import PydanticBase
+
 from .base import Base, TableNames
-from .currency import Currency, RATES_RELATIONSHIP_DEF
-# from .relationships import RELATIONSHIPS
+from .currency import RATES_RELATIONSHIP_DEF, Currency
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +39,7 @@ class CurrencyRateProvider(ABC):
 
 
 # Pydantic model for open.er-api.com response
-class ERAPI(BaseModel, CurrencyRateProvider):
+class ERAPI(PydanticBase, CurrencyRateProvider):
     CURRENCY_EXCHANGE_API_URL: ClassVar[str] = "https://open.er-api.com/v6/latest/{base}"
     SUCCESS_CODE: ClassVar[str] = "success"
     
@@ -120,7 +127,7 @@ class ERAPI(BaseModel, CurrencyRateProvider):
 
 class CurrencyRate(Base):
     __tablename__ = TableNames.CURRENCY_RATE
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     RATE_PROVIDER: type[CurrencyRateProvider] = ERAPI
 

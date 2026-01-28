@@ -7,6 +7,7 @@ from .currency import Currency
 from .currency_rate import CurrencyRate
 from .user import User
 from .user_permission import UserPermission
+
 # from .relationships import build_parent_relationships
 
 
