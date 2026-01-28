@@ -57,4 +57,24 @@ esac
 
 print_config
 docker compose --env-file "$ENV_FILE" $COMPOSE_FILES up -d
+
+wait_for_db() {
+	echo "[pyledger] Waiting for DB to accept connections..."
+	tries=0
+	max=30
+	until docker compose --env-file "$ENV_FILE" $COMPOSE_FILES exec -T db pg_isready -U "${DB_USER:-postgres}" >/dev/null 2>&1 || [ "$tries" -ge "$max" ]; do
+		tries=$((tries+1))
+		echo "[pyledger] DB not ready yet, retrying ($tries/$max)..."
+		sleep 1
+	done
+	if [ "$tries" -ge "$max" ]; then
+		echo "[pyledger] Warning: DB did not become ready after $max seconds"
+	else
+		echo "[pyledger] DB is ready."
+		echo "[pyledger] Restarting web to pick up DB readiness..."
+		docker compose --env-file "$ENV_FILE" $COMPOSE_FILES restart web || true
+	fi
+}
+
+wait_for_db
 print_logs
