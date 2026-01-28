@@ -77,7 +77,7 @@ EXPOSE 8000
 
 # Healthcheck to verify the app is responding on the expected endpoint
 HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=5 \
-  CMD ["python", "-c", "import sys,urllib.request as r; v=r.urlopen('http://127.0.0.1:8000/health', timeout=5); sys.exit(0 if v.getcode()<400 else 1)"]
+  CMD ["python", "-c", "import sys,urllib.request as r; v=r.urlopen('http://127.0.0.1:8000/api/health', timeout=5); sys.exit(0 if v.getcode()<400 else 1)"]
 
 # Default command: run uvicorn (override in production with your process manager if desired)
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
