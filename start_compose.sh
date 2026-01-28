@@ -10,16 +10,16 @@ ENV_FILE=".env.example"
 
 print_logs() {
 	echo "[pyledger] Showing first 20 log lines from each container:"
-	containers=$(docker compose $COMPOSE_FILES ps --services)
+	containers=$(docker compose --env-file "$ENV_FILE" $COMPOSE_FILES ps --services)
 	for c in $containers; do
 		echo "--- [$c] ---"
-		docker compose $COMPOSE_FILES logs --tail=20 $c || true
+			docker compose --env-file "$ENV_FILE" $COMPOSE_FILES logs --tail=20 $c || true
 	done
 }
 
 print_config() {
 	echo "[pyledger] Docker Compose config:"
-	docker compose $COMPOSE_FILES config
+	docker compose --env-file "$ENV_FILE" $COMPOSE_FILES config
 }
 
 export_env_file_vars() {
@@ -39,11 +39,11 @@ export_env_file_vars
 case "$1" in
 	--rebuild)
 		echo "[pyledger] Rebuilding images..."
-		docker compose $COMPOSE_FILES build
+			docker compose --env-file "$ENV_FILE" $COMPOSE_FILES build
 		;;
 	--restart)
 		echo "[pyledger] Restarting containers (no volume removal)..."
-		docker compose $COMPOSE_FILES down
+			docker compose --env-file "$ENV_FILE" $COMPOSE_FILES down
 		;;
 	"")
 		echo "[pyledger] Starting containers..."
@@ -56,5 +56,5 @@ esac
 
 
 print_config
-docker compose $COMPOSE_FILES up -d
+docker compose --env-file "$ENV_FILE" $COMPOSE_FILES up -d
 print_logs
