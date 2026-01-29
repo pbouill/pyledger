@@ -6,6 +6,7 @@ from typing import AsyncGenerator, Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncEngine
+from starlette.staticfiles import StaticFiles
 
 from .api import router as api_router
 from .migration import migrate_database
@@ -25,6 +26,11 @@ def create_app(engine: Optional[AsyncEngine] = None) -> FastAPI:
 
 
     app = FastAPI(title="PyLedger API", lifespan=lifespan)
+
+    # Serve the built frontend (dist -> /app/static in the container)
+    # Mount at root so that visiting / returns the static index.html and
+    # any client-side routes are handled by the SPA (html=True fallback).
+    app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
     # Simple CORS for local dev — tighten for production
     app.add_middleware(
