@@ -1,15 +1,18 @@
-"""Application factory for CanonLedger FastAPI app."""
 import logging
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Awaitable, Callable, Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, Response
 from sqlalchemy.ext.asyncio import AsyncEngine
 from starlette.staticfiles import StaticFiles
 
 from .api import router as api_router
+from .api.messages import http_exception_handler
 from .migration import migrate_database
+
+"""Application factory for CanonLedger FastAPI app."""
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +36,6 @@ def create_app(engine: Optional[AsyncEngine] = None) -> FastAPI:
         redoc_url="/api/redoc",
     )
 
-    # Serve the built frontend (dist -> /app/static in the container)
-    # Mount at root so that visiting / returns the static index.html and
-    # any client-side routes are handled by the SPA (html=True fallback).
-    app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
     # Simple CORS for local dev — tighten for production
     app.add_middleware(
         CORSMiddleware,
@@ -47,17 +45,32 @@ def create_app(engine: Optional[AsyncEngine] = None) -> FastAPI:
         allow_credentials=True,
     )
 
+    # Register API routes under /api first so they take precedence over
+    # serving static files mounted at the root path.
     app.include_router(api_router, prefix="/api")
+
+    # Serve the built frontend (dist -> /app/static in the container)
+    # Mount at root so that visiting / returns the static index.html and
+    # any client-side routes are handled by the SPA (html=True fallback).
+    app.mount(
+        "/",
+        StaticFiles(directory="static", html=True, check_dir=False),
+        name="static",
+    )
+
+    # Register a central HTTPException handler that includes message headers
+
+    app.add_exception_handler(HTTPException, http_exception_handler)
 
     # SPA fallback: serve index.html for any non-API route so client-side
     # routing works (e.g., /login, /company/123). Using an HTTP middleware
     # lets StaticFiles serve real assets and we only return index.html for
     # otherwise-unmatched non-API paths.
-    from fastapi import Request
-    from fastapi.responses import FileResponse
 
     @app.middleware("http")
-    async def spa_fallback_middleware(request: Request, call_next):
+    async def spa_fallback_middleware(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         resp = await call_next(request)
         path = request.url.path
         if resp.status_code == 404 and not path.startswith("/api") and "." not in path:

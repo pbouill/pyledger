@@ -1,18 +1,7 @@
 ---
 name: "ci-suggestions"
-id: "ci-suggestions"
-description: "Minimal CI job recommendations to enforce linting, typing, and tests."
-triggers:
-  - "ci suggestions"
+# DEPRECATED: This skill has moved to `.github/skills/ci-suggestions/SKILL.md`.
+# Please update references to the new location.
 ---
 
-# CI suggestions (skill)
-
-Suggested jobs
-- `lint`: run `ruff check .` and fail on any error.
-- `typecheck`: run `mypy .` and fail on any error.
-- `test`: run `pytest -q` and fail on failures.
-
-Notes
-- Run `install` step with `.venv` tooling or use the pipeline's Python+pip setup.
-- Consider caching `.mypy_cache` and pip wheels for speed.
+(This file is deprecated; see `.github/skills/ci-suggestions/SKILL.md` for the canonical content.)

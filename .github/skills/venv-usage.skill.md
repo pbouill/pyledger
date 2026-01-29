@@ -11,26 +11,6 @@ prompt_templates:
     file: "../prompts/venv_activation.prompt.md"
 ---
 
-# Virtualenv usage (skill)
+# DEPRECATED: This skill is replaced by `.github/skills/manage-venv/SKILL.md`.
 
-Purpose
-- Ensure a project venv is present and used for all Python tooling.
-
-Commands (recommended)
-- Check for venv: `test -d .venv` (ask before creating)
-- Install runtime deps: `.venv/bin/python -m pip install -r requirements.txt`
-- Install dev deps: `.venv/bin/python -m pip install -r requirements.dev.txt`
-- Run tools via venv interpreter: `.venv/bin/python -m <tool>`
-
-Guidelines
-- Prefer explicit `.venv/bin/python -m` invocations for reliability in CI and remote
-  sessions.
-- Only use `source .venv/bin/activate` when an interactive shell session is required.
-- Do NOT clear `.mypy_cache` routinely; only clear if `mypy` fails and re-run.
-
-Examples
-- Correct: `.venv/bin/python -m mypy .`
-- Acceptable: `source .venv/bin/activate && mypy .`
-
-Safety
-- Ask for confirmation before creating or modifying `.venv/`.
+(This file is deprecated; see `.github/skills/manage-venv/SKILL.md` for canonical venv usage and automation.)

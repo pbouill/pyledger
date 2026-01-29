@@ -67,7 +67,8 @@ RUN python -m pip install --no-index --no-cache-dir /wheels/* || true
 
 # Copy application code and built frontend assets
 COPY --from=builder /app /app
-COPY --from=frontend-build /build-frontend/dist /app/static
+# Use a separate frontend image so frontend rebuilds are decoupled
+COPY --from=canonledger-frontend:local /build-frontend/dist /app/static
 
 # Adjust permissions
 RUN chown -R appuser:appuser /app

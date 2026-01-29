@@ -33,8 +33,7 @@
 **Purpose**: This file is the canonical source of truth for how the Copilot assistant should behave and interact with contributors in this repository. Keep this file up to date; avoid duplicating guidance in other files.
 
 ## Canonical & DRY rule ✅
-- **Canonical location**: `.github/copilot-instructions.md` is the authoritative Copilot instruction document.
-- **DRY principle**: Keep instructions and style decisions DRY. Prefer referencing documentation (`docs/Style.md`, `docs/Architecture.md`, `README.md`) and using code-level inheritance/reuse to avoid duplication and confusion.
+- **Canonical location**: `.github/copilot-instructions.md` is the authoritative Copilot instruction document.- **Skills canonical location**: Store all Copilot Agent Skills under `.github/skills/`. Do not duplicate skill implementations at the repository root (e.g., `skills/`). Add a deprecation note to any existing root-level skill documentation and move the canonical artifacts into `.github/skills/`.- **DRY principle**: Keep instructions and style decisions DRY. Prefer referencing documentation (`docs/Style.md`, `docs/Architecture.md`, `README.md`) and using code-level inheritance/reuse to avoid duplication and confusion.
 - **No duplicates**: Do not create or maintain duplicate instruction documents. If you find similar content in other files, propose consolidation into this canonical file and remove the duplicates.
 - **No autonomous repo changes**: Copilot MUST NOT create branches, commit, push, open PRs/issues, merge PRs, tag releases, or otherwise modify repository state without explicit, itemized, and recorded confirmation from the user. See "Git operations policy" below.
 

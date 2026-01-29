@@ -6,6 +6,14 @@
 name: canonledger
 
 services:
+  frontend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.frontend
+    image: canonledger-frontend:local
+    # frontend image is just used as a build artifact, no runtime
+    command: ["true"]
+
   web:
     build: .
     ports:

@@ -1,0 +1,17 @@
+# Frontend-only Dockerfile
+# Builds the Vue/Vite app and leaves /build-frontend/dist in the image
+ARG NODE_VERSION=24
+ARG NODE_TAG_SUFFIX=-alpine
+
+FROM node:${NODE_VERSION}${NODE_TAG_SUFFIX} AS frontend-build
+WORKDIR /build-frontend
+
+# Copy only package files first for better caching
+COPY package*.json ./
+RUN npm ci --silent
+
+# Copy the rest of the frontend sources and build
+COPY . .
+RUN npm run build
+
+# Final image will contain /build-frontend/dist

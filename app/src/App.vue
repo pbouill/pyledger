@@ -7,12 +7,14 @@
         <img alt="CanonLedger Logo" src="/logo.png" class="logo" />
         <h1>CanonLedger</h1>
         <router-view />
+        <ToastContainer />
       </div>
     </v-main>
   </v-app>
 </template>
 
 <script setup lang="ts">
+import ToastContainer from './components/ToastContainer.vue'
 </script>
 
 <style>

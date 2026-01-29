@@ -10,5 +10,7 @@ Template
 
 If `mypy` fails, rerun once with cache cleared: `rm -rf .mypy_cache && .venv/bin/python -m mypy .`.
 
+Alternatively, use the helper script: `./scripts/clear_mypy_cache.sh --check` to clear the cache and run `mypy` in one step.
+
 Output
 - Return the exit code and the first 5 lines of failing output if any.
