@@ -44,12 +44,18 @@ def create_app(engine: Optional[AsyncEngine] = None) -> FastAPI:
     app.include_router(api_router, prefix="/api")
 
     # SPA fallback: serve index.html for any non-API route so client-side
-    # routing works (e.g., /login, /company/123)
+    # routing works (e.g., /login, /company/123). Using an HTTP middleware
+    # lets StaticFiles serve real assets and we only return index.html for
+    # otherwise-unmatched non-API paths.
     from fastapi import Request
     from fastapi.responses import FileResponse
 
-    @app.get("/{full_path:path}")
-    async def spa_fallback(request: Request, full_path: str) -> FileResponse:
-        return FileResponse("static/index.html")
+    @app.middleware("http")
+    async def spa_fallback_middleware(request: Request, call_next):
+        resp = await call_next(request)
+        path = request.url.path
+        if resp.status_code == 404 and not path.startswith("/api") and "." not in path:
+            return FileResponse("static/index.html")
+        return resp
 
     return app
