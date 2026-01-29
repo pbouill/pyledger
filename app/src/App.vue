@@ -4,8 +4,8 @@
   <v-app>
     <v-main>
       <div class="app">
-        <img alt="PyLedger Logo" src="/logo.png" class="logo" />
-        <h1>PyLedger</h1>
+        <img alt="CanonLedger Logo" src="/logo.png" class="logo" />
+        <h1>CanonLedger</h1>
         <router-view />
       </div>
     </v-main>

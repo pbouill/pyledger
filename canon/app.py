@@ -25,7 +25,13 @@ def create_app(engine: Optional[AsyncEngine] = None) -> FastAPI:
         logger.info("Shutting down application...")
 
 
-    app = FastAPI(title="PyLedger API", lifespan=lifespan)
+    app = FastAPI(
+        title="CanonLedger API",
+        lifespan=lifespan,
+        openapi_url="/api/openapi.json",
+        docs_url="/api/docs",
+        redoc_url="/api/redoc",
+    )
 
     # Serve the built frontend (dist -> /app/static in the container)
     # Mount at root so that visiting / returns the static index.html and
