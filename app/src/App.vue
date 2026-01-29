@@ -6,6 +6,10 @@
       <div class="app">
         <img alt="CanonLedger Logo" src="/logo.png" class="logo" />
         <h1>CanonLedger</h1>
+        <div class="nav">
+          <router-link to="/login"><v-btn color="primary" class="mx-2">Login</v-btn></router-link>
+          <router-link to="/register"><v-btn color="secondary">Register</v-btn></router-link>
+        </div>
         <router-view />
         <ToastContainer />
       </div>
@@ -26,4 +30,6 @@ body { font-family: 'Nunito', system-ui, sans-serif; padding: 2rem; }
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
+.nav { margin-bottom: 1rem; }
+.nav .v-btn { font-weight: 600; }
 </style>

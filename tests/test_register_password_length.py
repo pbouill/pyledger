@@ -27,29 +27,53 @@ async def fake_session() -> AsyncGenerator[object, None]:
     yield Dummy()
 
 
-async def test_register_password_too_long_returns_400() -> None:
-    # Provide a fake engine so app startup doesn't attempt to connect to a real DB
-    from contextlib import asynccontextmanager
-    from typing import cast
+async def test_register_accepts_long_password() -> None:
+    """Registration should accept passwords longer than 72 bytes when using Argon2."""
+    # Use a real in-memory SQLite engine so the app performs migrations and we
+    # exercise the real hashing and DB commit path.
+    from sqlalchemy.ext.asyncio import create_async_engine
 
-    from sqlalchemy.ext.asyncio import AsyncEngine
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+    app = create_app(engine=engine)
 
-    class DummyConn:
-        async def run_sync(self, fn: object) -> None:
-            return None
+    # Acquire a dedicated connection for this test and create tables there
+    conn = await engine.connect()
+    try:
+        from canon.models import Base
 
-    class DummyEngine:
-        @asynccontextmanager
-        async def begin(self) -> AsyncGenerator["DummyConn", None]:
-            yield DummyConn()
+        await conn.run_sync(Base.metadata.create_all)
 
-    app = create_app(engine=cast(AsyncEngine, DummyEngine()))
-    app.dependency_overrides[get_session] = fake_session
-    transport = ASGITransport(app=app)
-    long_password = "p" * 100  # longer than bcrypt 72-byte limit
-    payload = {"username": "u1", "email": "u1@example.com", "password": long_password}
+        # Override get_session to use a sessionmaker that binds to the shared
+        # connection so all handler sessions see the same DB state.
+        from typing import AsyncGenerator
 
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        r = await ac.post("/api/auth/register", json=payload)
-    assert r.status_code == 400
-    assert "too long" in r.json().get("detail", "").lower()
+        from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+        session_maker = async_sessionmaker(bind=conn, expire_on_commit=False)
+
+        async def _get_session() -> AsyncGenerator[AsyncSession, None]:
+            async with session_maker() as s:
+                yield s
+
+        app.dependency_overrides[get_session] = _get_session
+
+        long_password = "p" * 100  # longer than bcrypt 72-byte limit
+        payload = {
+            "username": "u1",
+            "email": "u1@example.com",
+            "password": long_password,
+        }
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            r = await ac.post("/api/auth/register", json=payload)
+            assert r.status_code == 200
+            data = r.json()
+            assert data.get("username") == "u1"
+            # The response headers should include our toast message header
+            assert "x-app-message" in r.headers
+            assert "registration successful" in (
+                r.headers.get("x-app-message", "")
+            ).lower()
+    finally:
+        await conn.close()

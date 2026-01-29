@@ -10,6 +10,7 @@ from starlette.staticfiles import StaticFiles
 
 from .api import router as api_router
 from .api.messages import http_exception_handler
+from .db import set_engine
 from .migration import migrate_database
 
 """Application factory for CanonLedger FastAPI app."""
@@ -22,6 +23,11 @@ def create_app(engine: Optional[AsyncEngine] = None) -> FastAPI:
     async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("Starting up application...")
         migrated_engine = await migrate_database(engine)
+        # If a test or caller supplied an engine, register it so internal
+        # call-sites that use `get_session()` directly (not via Depends)
+        # will use the test engine's sessionmaker.
+        if migrated_engine:
+            set_engine(migrated_engine)
         yield
         if migrated_engine:
             await migrated_engine.dispose()
@@ -35,6 +41,12 @@ def create_app(engine: Optional[AsyncEngine] = None) -> FastAPI:
         docs_url="/api/docs",
         redoc_url="/api/redoc",
     )
+
+    # If a caller (e.g., a test) provided an engine, register it immediately
+    # so that synchronous call-sites that use `get_session()` directly will
+    # use the provided engine even before the lifespan startup runs.
+    if engine:
+        set_engine(engine)
 
     # Simple CORS for local dev — tighten for production
     app.add_middleware(

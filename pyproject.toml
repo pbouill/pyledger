@@ -23,6 +23,9 @@ minversion = "7.0"
 asyncio_mode = "auto"
 python_files = "tests/*.py"
 markers = ["integration: mark test as integration (slow, requires external services)", "compose: mark test that needs docker-compose resources"]
+filterwarnings = [
+  "ignore::DeprecationWarning:passlib.handlers.argon2",
+]
 
 # Mypy configuration: keep all type-checker settings in pyproject.toml.
 [tool.mypy]

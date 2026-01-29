@@ -37,6 +37,19 @@ def get_engine() -> AsyncEngine:
     return _engine
 
 
+def set_engine(engine: AsyncEngine) -> None:
+    """Set the global engine and sessionmaker (useful for tests).
+
+    When tests create an in-memory engine they can call this (via the
+    application factory) so that request handlers which call
+    `get_session()` directly (instead of via dependency injection)
+    use the test engine's sessionmaker.
+    """
+    global _engine, _sessionmaker
+    _engine = engine
+    _sessionmaker = async_sessionmaker(_engine, expire_on_commit=False)
+
+
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

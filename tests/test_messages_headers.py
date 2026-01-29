@@ -58,14 +58,18 @@ async def test_register_sets_message_header() -> None:
 
     from typing import Any
 
-    auth_mod.get_password_hash = cast(Any, fake_hash)
+    original_hash = auth_mod.get_password_hash
+    try:
+        auth_mod.get_password_hash = cast(Any, fake_hash)
 
-    transport = ASGITransport(app=app)
-    payload = {"username": "u2", "email": "u2@example.com", "password": "goodpw"}
+        transport = ASGITransport(app=app)
+        payload = {"username": "u2", "email": "u2@example.com", "password": "goodpw"}
 
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        r = await ac.post("/api/auth/register", json=payload)
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            r = await ac.post("/api/auth/register", json=payload)
 
-    assert r.status_code == 200
-    assert r.headers.get("X-App-Message") is not None
-    assert "registration" in r.headers.get("X-App-Message", "").lower()
+        assert r.status_code == 200
+        assert r.headers.get("X-App-Message") is not None
+        assert "registration" in r.headers.get("X-App-Message", "").lower()
+    finally:
+        auth_mod.get_password_hash = original_hash

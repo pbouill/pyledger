@@ -4,18 +4,22 @@ set -euo pipefail
 # Run type checking (mypy). Usage: typecheck.sh [--clear-on-failure]
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLEAR_ON_FAILURE=false
+FORCE_CLEAR=false
 for arg in "$@"; do
   case "$arg" in
     --clear-on-failure)
       CLEAR_ON_FAILURE=true
       ;;
+    --force-clear)
+      FORCE_CLEAR=true
+      ;;
     -h|--help)
-      echo "Usage: $0 [--clear-on-failure]"
+      echo "Usage: $0 [--clear-on-failure] [--force-clear]"
       exit 0
       ;;
     *)
       echo "Unknown argument: $arg"
-      echo "Usage: $0 [--clear-on-failure]"
+      echo "Usage: $0 [--clear-on-failure] [--force-clear]"
       exit 1
       ;;
   esac
@@ -34,14 +38,37 @@ if "$PY" -m mypy . 2>&1 | tee "$TMP_OUTPUT"; then
   exit 0
 else
   echo "mypy failed. Inspecting errors..."
-  if [ "$CLEAR_ON_FAILURE" = true ]; then
-    echo "Attempting to clear mypy cache and re-run mypy (this will also run mypy):"
-    if "$SCRIPT_DIR/clear_mypy_cache.sh" --check; then
-      echo "mypy passed after clearing cache"
-      rm -f "$TMP_OUTPUT"
-      exit 0
+  # Only attempt automatic cache clearing when an internal mypy failure is
+  # detected (e.g., KeyError in mypy internals), or when user explicitly
+  # requests `--force-clear`.
+  if [ "$CLEAR_ON_FAILURE" = true ] || [ "$FORCE_CLEAR" = true ]; then
+    if "$SCRIPT_DIR/detect_mypy_internal_error.sh" "$TMP_OUTPUT"; then
+      echo "Detected mypy internal error."
+      echo "Attempting to clear mypy cache and re-run mypy (this will also run mypy):"
+      if "$SCRIPT_DIR/clear_mypy_cache.sh" --check; then
+        echo "mypy passed after clearing cache"
+        rm -f "$TMP_OUTPUT"
+        exit 0
+      else
+        echo "Clearing cache did not fix internal mypy error"
+      fi
     else
-      echo "Clearing cache did not fix mypy"
+      if [ "$FORCE_CLEAR" = true ]; then
+        echo "--force-clear provided: attempting to clear mypy cache despite no internal error detected."
+        if "$SCRIPT_DIR/clear_mypy_cache.sh" --check; then
+          echo "mypy passed after clearing cache"
+          rm -f "$TMP_OUTPUT"
+          exit 0
+        else
+          echo "Clearing cache did not resolve mypy failures."
+        fi
+      else
+        echo "mypy reported regular type errors. Not clearing cache automatically."
+        echo "To attempt automatic cache clearing for internal mypy errors, re-run with --clear-on-failure."
+        echo "To force a cache clear attempt, run with --force-clear."
+        echo "See $TMP_OUTPUT for details."
+        exit 1
+      fi
     fi
   fi
 

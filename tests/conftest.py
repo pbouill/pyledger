@@ -1,4 +1,5 @@
 import asyncio
+import warnings
 from typing import AsyncGenerator, Generator
 
 import pytest
@@ -10,6 +11,34 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from canon.migration import migrate_database
+
+# Suppress deprecation warnings emitted by argon2 when libraries access
+# `argon2.__version__` directly. Prefer upstream fix; in tests silence this
+# known, benign warning.
+warnings.filterwarnings(
+    "ignore",
+    message="Accessing argon2.__version__ is deprecated",
+    category=DeprecationWarning,
+)
+# Also ignore deprecation warnings originating from passlib's handler
+# which probes argon2.__version__ during handler initialization.
+warnings.filterwarnings(
+    "ignore",
+    category=DeprecationWarning,
+    module=r"passlib\.handlers\.argon2",
+)
+
+# Proactively set argon2.__version__ from package metadata for tests so that
+# libraries that check this attribute do not emit a DeprecationWarning.
+try:
+    import importlib.metadata as _md  # type: ignore
+    import argon2 as _argon2  # type: ignore
+
+    _version = _md.version("argon2-cffi")
+    if _version and not hasattr(_argon2, "__version__"):
+        setattr(_argon2, "__version__", _version)
+except Exception:  # pragma: no cover - best effort
+    pass
 
 
 @pytest.fixture(scope="session")

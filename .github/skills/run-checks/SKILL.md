@@ -28,7 +28,10 @@ Troubleshooting
 
 Scripts
 - `lint.sh` — run ruff (`--fix` by default). Usage: `./lint.sh [--no-fix]`
-- `typecheck.sh` — run mypy. Usage: `./typecheck.sh [--clear-on-failure]` (if `mypy` fails, this will run the clear-mypy-cache helper once and re-run mypy; it can also attempt to install missing `types-*` packages into `.venv` and update `requirements.dev.txt` automatically)
+- `typecheck.sh` — run mypy. Usage: `./typecheck.sh [--clear-on-failure] [--force-clear]`
+  - `--clear-on-failure`: only attempts automatic mypy cache clearing when an internal mypy error is detected (e.g., a KeyError in mypy internals). This avoids masking normal type errors.
+  - `--force-clear`: force cache clearing and re-run mypy even when no internal error is detected (use with caution).
+  - When normal type errors occur, the script will print the mypy output location for manual inspection and will not clear cache automatically.
 - `test.sh` — run pytest. Usage: `./test.sh`
 - `run_checks.sh` — canonical orchestrator; runs lint/type/test. Usage: `./run_checks.sh [--no-fix] [--mypy-only]`
 
