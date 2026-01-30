@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import EmailStr
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from canon.db import get_session
@@ -114,8 +115,18 @@ async def register(
         password_hash=password_hash,
     )
     db.add(user)
-    await db.commit()
-    await db.refresh(user)
+    try:
+        await db.commit()
+        await db.refresh(user)
+    except IntegrityError as err:
+        # Handle race-condition where another request inserted the same
+        # username/email between our existence check and commit.
+        await db.rollback()
+        logger.warning("IntegrityError on user register: %s", err)
+        raise HTTPException(
+            status_code=400,
+            detail="Username or email already registered",
+        ) from err
 
     # Add a friendly success message header for the frontend toast system
     set_message_headers(

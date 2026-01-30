@@ -6,10 +6,21 @@
           <v-card-title class="text-h5">Create Company</v-card-title>
           <v-card-text>
             <v-form @submit.prevent="onCreate">
-              <v-text-field v-model="name" label="Company Name" required />
-              <v-text-field v-model="legalName" label="Legal Name" />
-              <v-text-field v-model="taxNumber" label="Tax Number" />
-              <v-text-field v-model="currencyCode" label="Currency Code" />
+              <v-text-field
+                v-model="name"
+                label="Company Name"
+                required
+                autocomplete="organization"
+              />
+              <v-text-field
+                v-model="legalName"
+                label="Legal Name"
+                autocomplete="organization"
+              />
+              <v-text-field v-model="taxNumber" label="Tax Number" autocomplete="off" />
+
+              <CurrencySelect v-model="currencyCode" label="Currency Code" />
+
               <!-- TODO: Address, settings, logo upload -->
               <v-btn type="submit" color="primary" block class="mt-4">Create</v-btn>
             </v-form>
@@ -23,13 +34,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '../api'
+import CurrencySelect from '../components/CurrencySelect.vue'
 const name = ref('')
 const legalName = ref('')
 const taxNumber = ref('')
 const currencyCode = ref('')
 const error = ref('')
 const router = useRouter()
+
 async function onCreate() {
   error.value = ''
   try {

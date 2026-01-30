@@ -28,17 +28,7 @@ warnings.filterwarnings(
     module=r"passlib\.handlers\.argon2",
 )
 
-# Proactively set argon2.__version__ from package metadata for tests so that
-# libraries that check this attribute do not emit a DeprecationWarning.
-try:
-    import importlib.metadata as _md  # type: ignore
-    import argon2 as _argon2  # type: ignore
 
-    _version = _md.version("argon2-cffi")
-    if _version and not hasattr(_argon2, "__version__"):
-        setattr(_argon2, "__version__", _version)
-except Exception:  # pragma: no cover - best effort
-    pass
 
 
 @pytest.fixture(scope="session")

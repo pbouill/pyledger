@@ -1,13 +1,16 @@
 <template>
-  <div>
+  <div class="toast-area">
     <v-snackbar
       v-for="toast in toasts"
       :key="toast.id"
       v-model="visible[toast.id]"
       :timeout="5000"
       :color="colorForLevel(toast.level)"
-      top
+      bottom
       right
+      rounded
+      elevation="6"
+      class="toast"
     >
       {{ toast.text }}
       <template #actions>
@@ -51,3 +54,16 @@ function colorForLevel(level: string) {
   }
 }
 </script>
+
+<style scoped>
+.toast-area {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 9999;
+}
+.toast {
+  margin-top: 0.5rem;
+  min-width: 240px;
+}
+</style>
