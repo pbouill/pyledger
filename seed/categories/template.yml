@@ -1,0 +1,26 @@
+# Categories template
+# Provide a list of categories to seed into a tenant's `categories` table.
+# Each category can include:
+# - code: machine-friendly unique code (recommended)
+# - name: human-readable name
+# - parent: parent category code (optional)
+# - is_expense: true/false
+# - is_income: true/false
+# - comment: notes
+
+meta:
+  code: "DEFAULT-CATEGORIES"
+  comment: "Template for categories"
+
+categories:
+  - code: "office_supplies"
+    name: "Office supplies"
+    is_expense: true
+    is_income: false
+    comment: "Pens, paper, staples, etc."
+
+  - code: "advertising"
+    name: "Advertising & marketing"
+    is_expense: true
+    is_income: false
+    comment: "Advertising costs, online ads, trade shows"

@@ -1,0 +1,127 @@
+# Payroll Spec Template (Structured)
+# Copy and adapt this file for each region/year as needed.
+
+meta:
+  code: "CA-ON-2026"      # unique code for spec (ISO-region-year)
+  currency: "CAD"        # ISO 4217
+  period_mode: "annualized"  # Options: annualized, cumulative
+  active_date: "2026-01-01"
+  comment: "Human readable description or notes for this spec (optional)"
+
+# When the spec becomes active for payroll runs (now under meta.active_date)
+
+# When the spec becomes active for payroll runs (now under meta.active_date)
+
+# 1. Income types and rules
+income_rules:
+  regular:
+    tax_method: "periodic"
+    subject_to: [social, tax]
+  bonus:
+    tax_method: "supplemental"
+    subject_to: [social, tax]
+  benefit_non_cash:
+    tax_method: "periodic"
+    subject_to: [social, tax]
+    cash_payout: false
+
+# Pay rate and overtime rules
+# Define statutory pay rates, overtime thresholds and multipliers
+pay_rates:
+  overtime_threshold_hours: 40.0    # hours per week after which OT applies
+  overtime_multiplier: 1.5          # default OT multiplier for hours over threshold
+  statutory_multiplier: 1.5         # multiplier for statutory holiday pay
+  overtime_by_income_type:          # optional overrides per income type
+    bonus: 1.0
+
+# Statutory holidays (can be rules or explicit dates)
+# Example formats supported: list of ISO dates, or rule objects for recurring dates
+statutory_holidays:
+  - "YYYY-MM-DD"   # replace with actual dates or rules in specs
+  # or use rule objects:
+  # - {name: "Labour Day", month: 9, weekday: "first_monday"}
+
+# 2. Social contributions and tiers
+contributions:
+  - id: "pension_plan"
+    name: "Canada Pension Plan"
+    basis: "gross_pensionable"
+    exemption: 3500.00
+    tiers:
+      - name: "base"
+        rate: 0.0595
+        limit: 68500.00
+      - name: "enhanced"  # cpp2
+        rate: 0.0400
+        limit: 73200.00
+    employer_match: 1.0
+
+  - id: "insurance"
+    name: "Employment Insurance"
+    basis: "gross_insurable"
+    tiers:
+      - name: "standard"
+        rate: 0.0163
+        limit: 63200.00
+    employer_match: 1.4
+
+# 3. Pre-tax deductions (user inputs/checkboxes)
+input_deductions:
+  - id: "union_dues"
+    effect: "reduce_taxable_income"
+  - id: "rrsp_employee"
+    effect: "reduce_taxable_income"
+
+# 4. Income taxes and brackets
+taxes:
+  - id: "federal_tax"
+    name: "Federal Tax"
+    basis: "taxable_income"
+    credits:
+      base_amount: 15705.00
+      dependent_amount: 0.00
+    brackets:
+      - { limit: 55867, rate: 0.1500 }
+      - { limit: 111733, rate: 0.2050 }
+      - { limit: 173205, rate: 0.2600 }
+      - { limit: 246752, rate: 0.2900 }
+      - { limit: null, rate: 0.3300 }
+
+  - id: "provincial_tax"
+    name: "Ontario Tax"
+    basis: "taxable_income"
+    credits:
+      base_amount: 12399.00
+      rate: 0.0505
+    brackets:
+      - { limit: 51446, rate: 0.0505 }
+      - { limit: 102894, rate: 0.0915 }
+      - { limit: 150000, rate: 0.1116 }
+      - { limit: 220000, rate: 0.1216 }
+      - { limit: null, rate: 0.1316 }
+
+# 5. Remittance / Filing information (map by remit recipient)
+remittance:
+  # Key each remit recipient (e.g., CRA, PROV_ON) and declare the categories and
+  # schedule specific to that recipient. This allows remitting different
+  # categories to different entities when required.
+  CRA:
+    categories:
+      - "insurance"
+      - "pension_plan"
+      - "taxes"
+    schedule:
+      type: "following_month_day"
+      params:
+        day: 15
+        offset_months: 1
+
+# NOTE: Expense categories for employer contributions should be carried through
+# automatically when generating remittance bills (no need to list them here).
+
+# Optional: rounding rules and notes
+rounding_policy: "nearest_cent"
+
+notes: |
+  - This is a structured template for payroll specs.
+  - All numeric values are examples and must be verified against official sources before use.

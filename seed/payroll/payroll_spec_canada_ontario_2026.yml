@@ -1,0 +1,116 @@
+
+# Payroll Spec: Canada — Ontario 2026 (Structured)
+meta:
+  code: "CA-ON-2026"
+  currency: "CAD"
+  period_mode: "annualized"
+  active_date: "2026-01-01"
+  comment: "Canada Ontario payroll spec for 2026 (verify official rates before production)"
+
+income_rules:
+  regular:
+    tax_method: "periodic"
+    subject_to: [social, tax]
+  bonus:
+    tax_method: "supplemental"
+    subject_to: [social, tax]
+  benefit_non_cash:
+    tax_method: "periodic"
+    subject_to: [social, tax]
+    cash_payout: false
+
+# Pay rates and overtime/stat pay rules for this spec
+pay_rates:
+  overtime_threshold_hours: 44.0   # Ontario standard weekly threshold
+  overtime_multiplier: 1.5
+  statutory_multiplier: 1.5
+  overtime_by_income_type:
+    bonus: 1.0
+
+# Statutory holidays for Ontario 2026 (replace or extend as needed)
+statutory_holidays:
+  - "2026-01-01"  # New Year's Day
+  - "2026-07-01"  # Canada Day
+  - "2026-09-07"  # Labour Day (example)
+  - "2026-12-25"  # Christmas Day
+
+contributions:
+  - id: "pension_plan"
+    name: "Canada Pension Plan"
+    basis: "gross_pensionable"
+    exemption: 3500.00
+    tiers:
+      - name: "base"
+        rate: 0.0595
+        limit: 68500.00
+      - name: "enhanced"
+        rate: 0.0400
+        limit: 73200.00
+    employer_match: 1.0
+
+  - id: "insurance"
+    name: "Employment Insurance"
+    basis: "gross_insurable"
+    tiers:
+      - name: "standard"
+        rate: 0.0163
+        limit: 63200.00
+    employer_match: 1.4
+
+input_deductions:
+  - id: "union_dues"
+    effect: "reduce_taxable_income"
+  - id: "rrsp_employee"
+    effect: "reduce_taxable_income"
+
+taxes:
+  - id: "federal_tax"
+    name: "Federal Tax"
+    basis: "taxable_income"
+    credits:
+      base_amount: 15705.00
+      dependent_amount: 0.00
+    brackets:
+      - { limit: 55867, rate: 0.1500 }
+      - { limit: 111733, rate: 0.2050 }
+      - { limit: 173205, rate: 0.2600 }
+      - { limit: 246752, rate: 0.2900 }
+      - { limit: null, rate: 0.3300 }
+
+  - id: "provincial_tax"
+    name: "Ontario Tax"
+    basis: "taxable_income"
+    credits:
+      base_amount: 12399.00
+      rate: 0.0505
+    brackets:
+      - { limit: 51446, rate: 0.0505 }
+      - { limit: 102894, rate: 0.0915 }
+      - { limit: 150000, rate: 0.1116 }
+      - { limit: 220000, rate: 0.1216 }
+      - { limit: null, rate: 0.1316 }
+
+# Optional defaults and per-employee sample values
+employee_defaults:
+  payroll_tax_deductions:
+    td1_fed: 16452.00   # Example default — VERIFY
+    td1_prov: 12989.00  # Example default — VERIFY
+
+remittance:
+  CRA:
+    categories:
+      - "insurance"
+      - "pension_plan"
+      - "taxes"
+    schedule:
+      type: "following_month_day"
+      params:
+        day: 15
+        offset_months: 1  # remit on the 15th of the following month
+
+rounding_policy: "nearest_cent"
+
+notes: |
+  - Values have been reorganized to the new structured format.
+  - *IMPORTANT*: Verify CPP/EI rates and limits for 2026 against CRA / Service Ontario before using this spec in production.
+  - If your jurisdiction uses QPP or other variants, populate additional entries under `contributions`.

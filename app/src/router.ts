@@ -4,6 +4,7 @@ import Register from './views/Register.vue'
 import CompanyDashboard from './views/CompanyDashboard.vue'
 import CompanyCreate from './views/CompanyCreate.vue'
 import CompanySettings from './views/CompanySettings.vue'
+import CompanyAccounts from './views/CompanyAccounts.vue'
 
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/login' },
@@ -12,6 +13,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/company', component: CompanyDashboard, meta: { requiresAuth: true } },
   { path: '/company/create', component: CompanyCreate, meta: { requiresAuth: true } },
   { path: '/company/settings', component: CompanySettings, meta: { requiresAuth: true } },
+  { path: '/company/:id/settings', component: CompanySettings, meta: { requiresAuth: true } },
+  { path: '/company/:id/accounts', component: CompanyAccounts, meta: { requiresAuth: true } },
 ]
 
 

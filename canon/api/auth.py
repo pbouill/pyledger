@@ -148,7 +148,7 @@ async def login(
     if not isinstance(username, str) or not isinstance(password, str):
         raise HTTPException(status_code=400, detail="Invalid login form")
     db = session
-    logger.debug("Login attempt for username=%s", username)
+    logger.debug(f"Login attempt for username={username}")
     user = await authenticate_user(db, username, password)
     if not user:
         # Fallback: try using the same public function so tests that monkeypatch
@@ -167,13 +167,21 @@ async def login(
             detail="Incorrect username or password",
         )
     access_token = create_access_token(data={"sub": user.username})
+    logger.debug(f"Login successful for username={username}, token issued.")
     return Token(access_token=access_token, token_type="bearer")
 
-@router.get("/me", response_model=UserOut)
-async def read_users_me(
+async def get_current_user(
+    token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated["AsyncSession", Depends(get_session)],
-    token: str = Depends(oauth2_scheme),
 ) -> User:
+    logger.debug(f"get_current_user: token received: {token}")
+    if not isinstance(token, str):
+        logger.debug("get_current_user: Invalid token type")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     db = session
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -183,11 +191,26 @@ async def read_users_me(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
+        logger.debug(f"get_current_user: Decoded username from token: {username}")
         if not isinstance(username, str):
+            logger.debug("get_current_user: Username in token is not a string")
             raise credentials_exception
     except JWTError as err:
+        logger.debug(f"get_current_user: JWTError: {err}")
         raise credentials_exception from err
     user = await get_user_by_username(db, username)
     if user is None:
+        logger.debug(f"get_current_user: No user found for username: {username}")
         raise credentials_exception
+    logger.debug(f"get_current_user: Authenticated user: {user.username}")
     return user
+
+
+@router.get("/me", response_model=UserOut)
+async def read_users_me(
+    session: Annotated["AsyncSession", Depends(get_session)],
+    token: str = Depends(oauth2_scheme),
+) -> User:
+    # Reuse the common helper so tests/consumers can use either the
+    # endpoint or the dependency directly.
+    return await get_current_user(token=token, session=session)

@@ -1,6 +1,6 @@
-# PyLedger Frontend (Vue + Vite)
+# CanonLedger Frontend (Vue + Vite)
 
-Minimal frontend scaffold for PyLedger using Vue 3 + Vite.
+Minimal frontend scaffold for CanonLedger using Vue 3 + Vite.
 
 Quickstart:
 

@@ -9,6 +9,8 @@
               <v-list-item v-for="company in companies" :key="company.id">
                 <v-list-item-title>{{ company.name }}</v-list-item-title>
                 <v-list-item-subtitle>{{ company.legal_name }}</v-list-item-subtitle>
+                <v-spacer />
+                <v-btn text :to="`/company/${company.id}/accounts`">Accounts</v-btn>
               </v-list-item>
             </v-list>
             <v-btn color="primary" to="/company/create">Create New Company</v-btn>

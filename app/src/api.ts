@@ -6,6 +6,11 @@ const api = axios.create({
   withCredentials: true,
 })
 
+// Test/runtime helper to override base URL (useful for integration tests)
+export function setApiBaseUrl(url: string) {
+  api.defaults.baseURL = url
+}
+
 api.interceptors.request.use((config) => {
   const auth = useAuthStore()
   if (auth.token) {

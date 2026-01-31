@@ -1,6 +1,7 @@
 """PyLedger models package: exposes Base, Company, User."""
 # from sqlalchemy.orm import relationship
 
+from .account import Account
 from .base import Base, TableNames
 from .company import Company
 from .currency import Currency
@@ -21,4 +22,6 @@ __all__ = [
     "UserPermission",
     "Currency",
     "CurrencyRate",
+    "Account",
+    "AccountTransaction",
 ]

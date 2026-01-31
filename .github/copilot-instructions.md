@@ -95,6 +95,13 @@
 
 
 
+## Local dev defaults
+
+- The repository's `./scripts/dev_local.sh` runner defaults to auto-building frontend assets using `vite build --watch` so that `FRONTEND_STATIC_DIR`-based workflows pick up changes automatically. `make dev` starts the backend and runs the build-watch in the background by default.
+- If interactive HMR is preferred, run `make dev-hmr` which starts the Vite dev server (HMR) alongside the backend.
+- When recommending local workflows for contributors, prefer the build-watch flow for fast smoke tests and production-like verification; recommend HMR for interactive UI development.
+
+
 ## Lint/Type Error Prevention & Iterative Instruction Improvement
 
 - **Lessons Learned:**
@@ -162,14 +169,114 @@
     - A code example (incorrect/correct).
     - Any new or revised rules.
   - All contributors and Copilot must propose updates to this file when new lessons are learned.
+  - **Run-checks -> Style prompts:** When the `run-checks` scripts generate a candidate lesson
+    (written to `./.github/skills/run-checks/last_lesson.md`), Copilot **must** prompt the contributor
+    with a concise, DRY suggested entry for `docs/Style.md` (1–2 sentences plus an optional short
+    incorrect/correct example). The suggestion should include:
+      - A one-sentence rule (what to do or avoid).
+      - A one-sentence rationale (why it matters).
+      - A short incorrect/correct snippet when applicable.
+    Copilot should ask whether the contributor would like Copilot to prepare a draft edit
+    (branch/commit/PR) or merely record the suggestion. Copilot must not edit canonical docs
+    without explicit, itemized human approval and must follow the repository Git operations
+    policy when making changes.
 
 ## Instruction updates & proactive prompts
 - When Copilot discovers missing, ambiguous, or useful guidance that should be added to this file (or related canonical docs), it should proactively prompt the user with:
   - A short explanation of what should be added and why.
   - A suggested change (diff, paragraph, or bullet points).
+  - A concise suggested `docs/Style.md` entry when the discovery originated from `run-checks` output (i.e., a `last_lesson.md`). The concise `Style.md` suggestion should be 1–2 sentences plus an optional short incorrect/correct example and follow the repository's DRYness and conciseness goals.
   - A question asking whether the user would like Copilot to prepare the edit as a draft (PR) or just record the suggestion for later.
 - Copilot must not directly edit the canonical instructions or push the change without explicit user approval and an itemized confirmation that includes the target branch name and commit message.
 
 ---
 
 This file is intentionally concise and prescriptive; for implementation details, testing patterns, or ADRs, please see `docs/` and relevant templates in `.github/`.
+
+## Run-checks usage policy
+- **Mandatory:** Contributors must run the canonical `run-checks` skill
+  (`./.github/skills/run-checks/run_checks.sh`) to perform linting, type checks,
+  and tests before opening a PR or pushing changes.
+- If a check run fails, follow the canonical `run-checks` skill guidance
+  (see `.github/skills/run-checks/SKILL.md`) to inspect the candidate lesson
+  produced by the step scripts or printed to the console. If the suggestion
+  is valid, propose a concise lesson entry to `.github/copilot-instructions.md`,
+  reference the failing run in the PR, and request maintainer review before
+  merging.
+- Mark DB-specific integration tests with `@pytest.mark.postgres` so they run
+  only in the Postgres job of the CI matrix. Unit tests must not make network
+  calls; use mocking or fixtures for external services.
+- Tests should be deterministic and include proper setup/teardown to avoid
+  flakiness or time-dependent assumptions.
+
+## Run-checks lessons (recorded)
+- **Common errors**
+  - **B008**: Do not call `Depends(...)` in argument defaults; inject inside function
+    body and perform checks there. Example:
+
+    ❌ Incorrect:
+    ```python
+    def foo(db: Session = Depends(get_db)):
+        ...
+    ```
+
+    ✅ Correct:
+    ```python
+    def foo():
+        db = Depends(get_db)
+        ...
+    ```
+
+  - **E501**: Keep lines ≤ 88 characters. Prefer wrapping long expressions, moving
+    arguments to subsequent lines, or extracting helpers to keep readability.
+
+  - **Mypy internal cache**: If mypy raises an internal error (stack trace or
+    KeyError in mypy internals), clear `.mypy_cache` and re-run mypy. The
+    canonical `run-checks` helper can do this automatically with
+    `--clear-on-failure`.
+
+  - **DB-specific behavior**: Tests run against sqlite can miss issues that only
+    appear on Postgres (e.g., tenant DB creation, network failures). Add a CI
+    matrix job to run tests vs both sqlite and Postgres, and mark slow/DB-only
+    tests with a pytest marker like `@pytest.mark.postgres`.
+
+## Triage checklist (what Copilot should follow after each ruff/mypy run)
+1. Reproduce the failure locally with `ruff check .` and/or `mypy .`.
+2. Categorize: syntax/import → type → style → unused → line-length.
+3. Propose minimal, focused fixes and include tests if behavior changes.
+4. Re-run the checks and tests locally.
+5. If changes are safe and small (style fixes, imports, line-wraps), suggest an
+   autonomous fix; otherwise prepare a draft change and seek user approval.
+
+## Autonomous fix policy (clarified)
+- Copilot **may** apply non-invasive, purely syntactic fixes directly in-branch
+  (e.g., import ordering, line-wraps, isort/ruff autofixes) **only** after:
+  - presenting a one-line summary of the change, and
+  - running `ruff check .` and `mypy .` locally and reporting results.
+
+- Copilot **must** ask for explicit approval before applying changes that:
+  - modify runtime behavior, introduce or remove tests, or change CI jobs;
+  - update dependencies (requirements files) or run package installs;
+  - create or update migration scripts or tenant-provisioning logic.
+
+## CI & skill cross-reference
+- Use `.github/skills/ci-suggestions` for CI design recommendations (lint,
+  typecheck, test jobs). Prefer the matrix example in
+  `.github/skills/ci-suggestions/examples/ci-workflow-matrix.yml` to run tests
+  across sqlite and Postgres.
+- Use the `run-checks` skill as the canonical local orchestration and note its
+  `--clear-on-failure` behavior for mypy cache handling.
+
+## DB-specific tests guidance
+- Mark database-specific integration tests with `@pytest.mark.postgres` (or
+  equivalent) so they run only in the Postgres CI job of the matrix.
+- For code touching tenancy or EngineManager, add a short integration test that
+  asserts safe behavior under sqlite and under Postgres (e.g., EngineManager
+  should reuse sqlite engine in tests and create tenants on Postgres).
+
+---
+
+If you'd like, I can prepare these changes as a commit on the current branch and
+run the checks locally; tell me whether you'd like me to perform the git
+commands (`git add`, `git commit`) and optionally push the change. If so, I
+will show the exact commands I will run and wait for your confirmation.

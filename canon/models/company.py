@@ -33,8 +33,12 @@ class Company(Base):
     __tablename__ = TableNames.COMPANY
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    legal_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    tax_number: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    legal_name: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True, unique=True
+    )
+    tax_number: Mapped[Optional[str]] = mapped_column(
+        String(64), nullable=True, unique=True
+    )
     address: Mapped[Optional[dict]] = mapped_column(AddressType, nullable=True)
     currency_code: Mapped[Optional[str]] = mapped_column(
         String(8), ForeignKey(Currency.code), nullable=True

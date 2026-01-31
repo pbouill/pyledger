@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/currency", tags=["currency"])
 
 
+@router.get("", response_model=dict[str, str])
 @router.get("/", response_model=dict[str, str])
 async def list_currencies() -> dict[str, str]:
     """Return a mapping of ISO alpha_3 currency code to currency name.

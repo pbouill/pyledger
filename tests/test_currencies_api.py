@@ -13,7 +13,9 @@ async def test_currency_endpoint_includes_usd() -> None:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         r = await ac.get("/api/currency/")
+        r2 = await ac.get("/api/currency")
     assert r.status_code == 200
+    assert r2.status_code == 200
     data = r.json()
     assert isinstance(data, dict)
     assert "USD" in data

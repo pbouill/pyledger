@@ -4,7 +4,7 @@
     :loading="loading"
     :label="label"
     v-model="selected"
-    item-text="text"
+    item-title="text"
     item-value="value"
     clearable
     :required="required"

@@ -1,0 +1,126 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev: Backend + Frontend",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/dev_local.sh",
+      "args": ["--port", "8001", "--db", "sqlite"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Dev: Backend only",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/dev_local.sh",
+      "args": ["--port", "8001", "--db", "sqlite", "--no-frontend"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Dev: Start Background (backend + frontend)",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/dev_local.sh",
+      "args": ["--port", "8001", "--db", "sqlite", "--background-frontend"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Dev: Start Background (backend + frontend - build-watch)",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/dev_local.sh",
+      "args": ["--port", "8001", "--db", "sqlite", "--background-frontend", "--watch-build"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Dev (make): Start Background (default)",
+      "type": "shell",
+      "command": "make",
+      "args": ["dev"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Dev (make): Start Background (HMR)",
+      "type": "shell",
+      "command": "make",
+      "args": ["dev-hmr"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Dev: Frontend only",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Build: Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}/app"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Watch: Frontend Build (watch)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build:watch"],
+      "options": {
+        "cwd": "${workspaceFolder}/app"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+
+
+    {
+      "label": "Dev: Stop",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/stop_dev.sh",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}

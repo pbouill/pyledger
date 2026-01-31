@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Backend (reload)",
+      "type": "python",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["canon.app:app", "--reload", "--port", "8001"],
+      "env": {
+        "DB_TYPE": "sqlite"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Launch Backend (serve built UI)",
+      "type": "python",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["canon.app:app", "--port", "8001"],
+      "preLaunchTask": "Build: Frontend",
+      "env": {
+        "FRONTEND_STATIC_DIR": "${workspaceFolder}/app/dist"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Launch Frontend",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/app",
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Run Frontend + Backend (dev)",
+      "configurations": ["Launch Backend (reload)", "Launch Frontend"]
+    }
+  ]
+}

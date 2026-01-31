@@ -1,0 +1,86 @@
+meta:
+  code: "DEFAULT-CATEGORIES"
+  comment: "Common Canadian small-business income & expense categories (CRA-typical)"
+
+categories:
+  - code: "revenue"
+    name: "Revenue"
+    is_expense: false
+    is_income: true
+    comment: "Primary sales or service revenue"
+
+  - code: "cost_of_goods_sold"
+    name: "Cost of Goods Sold"
+    is_expense: true
+    is_income: false
+    comment: "Direct costs of producing goods sold"
+
+  - code: "wages_salaries"
+    name: "Wages and Salaries"
+    is_expense: true
+    comment: "Employee wages and salaries"
+
+  - code: "employer_cpp"
+    name: "Employer CPP Contributions"
+    is_expense: true
+    comment: "Employer portion of CPP / QPP"
+
+  - code: "employer_ei"
+    name: "Employer EI Contributions"
+    is_expense: true
+    comment: "Employer portion of EI"
+
+  - code: "rent"
+    name: "Rent"
+    is_expense: true
+    comment: "Office / premises rent"
+
+  - code: "utilities"
+    name: "Utilities"
+    is_expense: true
+    comment: "Electricity, heat, water"
+
+  - code: "office_supplies"
+    name: "Office Supplies"
+    is_expense: true
+    comment: "Stationery, printer ink, paper"
+
+  - code: "advertising"
+    name: "Advertising & Promotion"
+    is_expense: true
+
+  - code: "insurance"
+    name: "Insurance"
+    is_expense: true
+
+  - code: "professional_fees"
+    name: "Professional Fees"
+    is_expense: true
+    comment: "Accountants, lawyers, consultants"
+
+  - code: "vehicle_expenses"
+    name: "Vehicle Expenses"
+    is_expense: true
+    comment: "Fuel, maintenance, lease payments"
+
+  - code: "meals_entertainment"
+    name: "Meals & Entertainment (50%)"
+    is_expense: true
+    comment: "Typically 50% deductible for tax purposes"
+
+  - code: "bank_fees"
+    name: "Bank Fees & Charges"
+    is_expense: true
+
+  - code: "training"
+    name: "Employee Training & Development"
+    is_expense: true
+
+  - code: "repairs_maintenance"
+    name: "Repairs & Maintenance"
+    is_expense: true
+
+  - code: "depreciation"
+    name: "Depreciation"
+    is_expense: true
+    comment: "Capital cost allowance / depreciation"

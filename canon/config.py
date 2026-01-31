@@ -34,14 +34,32 @@ def get_db_password() -> Optional[str]:
 
 
 def get_database_url() -> str:
-    """Return a Postgres connection URL constructed from env/secrets.
+    """Return a database connection URL.
 
-    Order of precedence for password:
-    - secret file
-    - `DB_PASSWORD`
-    - `DB_ROOT_PASSWORD`
-    - none
+    Resolution order:
+    1. `DATABASE_URL` env var (explicit override)
+    2. If `DB_TYPE=sqlite` then use `DB_PATH` or default `./dev.db`
+    3. Otherwise construct a Postgres URL from env/secrets (backwards compatible)
+
+    This makes it easy to opt into a local sqlite dev mode without changing
+    production / compose settings.
     """
+    # 1) Explicit override
+    explicit = os.getenv("DATABASE_URL")
+    if explicit:
+        return explicit
+
+    # 2) Optional sqlite dev mode
+    db_type = os.getenv("DB_TYPE", "postgres").lower()
+    if db_type == "sqlite":
+        db_path = os.getenv("DB_PATH", ".local/")
+        # Always use app.db as the main DB file in the specified directory
+        if not db_path.endswith("/"):
+            db_path += "/"
+        db_file = f"{db_path}app.db"
+        return f"sqlite+aiosqlite:///{db_file}"
+
+    # 3) Default Postgres (existing behavior)
     user = os.getenv("DB_USER", "postgres")
     host = os.getenv("DB_HOST", "db")
     db = os.getenv("DB_NAME", "pyledger")

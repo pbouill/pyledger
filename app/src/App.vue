@@ -7,8 +7,15 @@
         <img alt="CanonLedger Logo" src="/logo.png" class="logo" />
         <h1>CanonLedger</h1>
         <div class="nav">
-          <router-link to="/login"><v-btn color="primary" class="mx-2">Login</v-btn></router-link>
-          <router-link to="/register"><v-btn color="secondary">Register</v-btn></router-link>
+          <template v-if="!auth.isAuthenticated">
+            <router-link to="/login"><v-btn color="primary" class="mx-2">Login</v-btn></router-link>
+            <router-link to="/register"><v-btn color="secondary">Register</v-btn></router-link>
+          </template>
+          <template v-else>
+            <v-btn text :to="'/company'">Companies</v-btn>
+            <v-btn text :to="'/company/create'">Create Company</v-btn>
+            <v-btn text @click="onLogout">Logout</v-btn>
+          </template>
         </div>
         <router-view />
         <ToastContainer />
@@ -19,6 +26,15 @@
 
 <script setup lang="ts">
 import ToastContainer from './components/ToastContainer.vue'
+import { useAuthStore } from './stores/auth'
+import { useRouter } from 'vue-router'
+const auth = useAuthStore()
+const router = useRouter()
+
+function onLogout() {
+  auth.logout()
+  router.push('/login')
+}
 </script>
 
 <style>

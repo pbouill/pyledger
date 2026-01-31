@@ -3,6 +3,7 @@ import warnings
 from typing import AsyncGenerator, Generator
 
 import pytest
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -51,3 +52,76 @@ async def db_session(engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
     )
     async with async_session() as session:
         yield session
+
+
+# HTTP client for tests that uses an ASGI transport and overrides the
+# `get_session` dependency so each request uses a test sessionmaker bound
+# to the shared test engine. This keeps request handling consistent and
+# avoids boilerplate in individual tests.
+@pytest.fixture
+async def async_client(engine: AsyncEngine) -> AsyncGenerator["AsyncClient", None]:
+    from httpx import AsyncClient
+    from httpx._transports.asgi import ASGITransport
+
+    from canon.app import create_app
+    from canon.db import get_session
+
+    app = create_app(engine=engine)
+    session_maker = async_sessionmaker(bind=engine, expire_on_commit=False)
+
+    async def _get_session() -> AsyncGenerator[AsyncSession, None]:
+        async with session_maker() as s:
+            yield s
+
+    app.dependency_overrides[get_session] = _get_session
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
+
+
+@pytest.fixture
+def test_username() -> str:
+    return "testuser"
+
+
+@pytest.fixture
+def test_email() -> str:
+    return "test@example.com"
+
+
+@pytest.fixture
+def test_password() -> str:
+    return "hunter2"
+
+
+@pytest.fixture
+async def token(
+    async_client: AsyncClient,
+    test_username: str,
+    test_email: str,
+    test_password: str,
+) -> str:
+    """Register a test user and return a bearer token string."""
+    r = await async_client.post(
+        "/api/auth/register",
+        json={
+            "username": test_username,
+            "email": test_email,
+            "password": test_password,
+        },
+    )
+    # Allow registration to be idempotent in tests
+    if r.status_code not in (200, 400):
+        r.raise_for_status()
+    lr = await async_client.post(
+        "/api/auth/login",
+        data={"username": test_username, "password": test_password},
+    )
+    lr.raise_for_status()
+    return lr.json().get("access_token")
+
+
+@pytest.fixture
+def auth_headers(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}

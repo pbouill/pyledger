@@ -90,5 +90,42 @@ docker build \
   -t pyledger .
 ```
 
+Local rapid prototyping (sqlite mode, all runtime files in .local/):
+
+- Set a local sqlite DB: `DB_TYPE=sqlite DB_PATH=.local/dev.db` or use the Makefile helper
+- Start the local development runner (backend + frontend):
+  - `make dev` (recommended — starts backend and runs `vite build --watch` for auto-built assets in the background). You can also run it via the VS Code task **Dev (make): Start Background (default)**.
+  - If you want Vite HMR instead of building to `dist`, use: `make dev-hmr` (starts backend + Vite dev server with HMR) or the VS Code task **Dev (make): Start Background (HMR)**.
+  - To run only the backend: `make backend` (runs with --no-frontend)
+  - To run with the compose Postgres DB: `./scripts/dev_local.sh --port 8001 --db postgres` or `make dev` with `DB_TYPE=postgres`
+
+Migrations (tenant DBs)
+
+- When adding new tenant-scoped columns (e.g., `opening_balance` on `account`), run:
+  - `make migrate-tenants` — this will connect to each tenant DB and apply additive migrations (safe to re-run).
+  - The script is `scripts/migrate_tenants.py` and currently applies the `opening_balance` additive migration.
+
+Run frontend unit tests against a running local backend:
+
+- `TEST_API_URL=http://localhost:8001 npm run test:unit -- --run`
+
+
+Frontend / backend workflows (recommended)
+
+1) Fast iteration (recommended for development) ✅
+- Start the frontend dev server (Vite) with HMR and the backend with reload:
+  - `# in one terminal` cd app && npm run dev
+  - `# in another` DB_TYPE=sqlite python -m uvicorn canon.app:app --reload --port 8001
+- Alternatively use the VS Code Run view: select **Run Frontend + Backend (dev)** (compound config) to start both.
+
+2) Production-like (serve built UI from backend) ✅
+- Build the frontend and serve it from FastAPI (useful for smoke tests):
+  - `cd app && npm run build`
+  - `FRONTEND_STATIC_DIR="${PWD}/app/dist" DB_TYPE=sqlite python -m uvicorn canon.app:app --port 8001`
+- VS Code: use **Launch Backend (serve built UI)** which runs the build task and sets `FRONTEND_STATIC_DIR` for you.
+
+Notes:
+- `FRONTEND_STATIC_DIR` controls where FastAPI serves static assets from (defaults to `static`).
+- `CORS_ORIGINS` may be set (comma-separated) if you need to allow cross-origin requests in dev; the app does not enable localhost CORS by default.
 
 Note: If you'd like, I can attempt to install `pyenv` and the requested Python version locally for you now — say “yes” and I will run the required commands (I will not make system changes without your explicit confirmation).

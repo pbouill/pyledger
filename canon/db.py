@@ -28,10 +28,21 @@ def get_engine() -> AsyncEngine:
     global _engine, _sessionmaker
     if _engine is None:
         DATABASE_URL = get_database_url()
-        # Use asyncpg driver
-        async_database_url = DATABASE_URL.replace(
-            "postgresql://", "postgresql+asyncpg://"
-        )
+        # Choose async dialect based on URL scheme
+        if DATABASE_URL.startswith("postgresql://"):
+            async_database_url = DATABASE_URL.replace(
+                "postgresql://", "postgresql+asyncpg://"
+            )
+        elif DATABASE_URL.startswith("sqlite+") or DATABASE_URL.startswith("sqlite://"):
+            # Assume sqlite+aiosqlite or sqlite scheme already; ensure we use aiosqlite
+            if DATABASE_URL.startswith("sqlite://"):
+                async_database_url = DATABASE_URL.replace("sqlite://", "sqlite+aiosqlite://")
+            else:
+                async_database_url = DATABASE_URL
+        else:
+            # Fallback: pass through (user provided a full async URL)
+            async_database_url = DATABASE_URL
+
         _engine = create_async_engine(async_database_url)
         _sessionmaker = async_sessionmaker(_engine, expire_on_commit=False)
     return _engine

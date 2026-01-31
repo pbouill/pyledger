@@ -21,6 +21,10 @@
 
               <CurrencySelect v-model="currencyCode" label="Currency Code" />
 
+              <v-alert v-if="error" type="error" class="mb-4" text>
+                {{ error }}
+              </v-alert>
+
               <!-- TODO: Address, settings, logo upload -->
               <v-btn type="submit" color="primary" block class="mt-4">Create</v-btn>
             </v-form>
@@ -35,6 +39,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import CurrencySelect from '../components/CurrencySelect.vue'
+import api from '../api'
 const name = ref('')
 const legalName = ref('')
 const taxNumber = ref('')

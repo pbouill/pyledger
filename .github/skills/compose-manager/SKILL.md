@@ -22,4 +22,4 @@ Usage
 
 Notes
 - Best practices: skills should be placed under `.github/skills/` (see https://code.visualstudio.com/docs/copilot/customization/agent-skills)
-- `start_compose.sh` at repo root is a thin wrapper to maintain backward compatibility; prefer calling the skill directly.
+- `scripts/start_compose.sh` and `scripts/stop_compose.sh` are the canonical wrappers; prefer calling these scripts directly.
